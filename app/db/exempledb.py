@@ -7,7 +7,8 @@ class User(Base):
     __tablename__ = "utilisateur"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    role = Column(String, nullable=False)
+    role = Column(Boolean, nullable=False, default=False)
+    badges = relationship("Badge", back_populates="user")
 
 class Badge(Base):
     __tablename__ = "badge"
