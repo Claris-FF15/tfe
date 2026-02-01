@@ -1,9 +1,5 @@
 from fastapi import FastAPI
-from .database import engine, Base
-from .routers import access  # ton router
-
-Base.metadata.create_all(bind=engine)
+from routers.user_router import router as user_router
 
 app = FastAPI()
-
-app.include_router(access.router)
+app.include_router(user_router)
