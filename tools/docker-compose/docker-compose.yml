@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "" 
+      POSTGRES_DB: badge_app
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - badge_network
+
+  backend:
+    build: ../../app
+    container_name: app_container
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:@db:5432/badge_app
+    ports:
+      - "8000:8000"
+    networks:
+      - badge_network
+
+  frontend:
+    build: ../../web
+    container_name: web_container
+    ports:
+      - "4200:4200"
+    networks:
+      - badge_network
+
+volumes:
+  postgres_data:
+
+networks:
+  badge_network:

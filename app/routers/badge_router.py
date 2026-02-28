@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from core.database import get_db
+from db.database import get_db
 from services.user_service import UserService
 from schemas.user import *
 from dependencies.auth import get_current_user
