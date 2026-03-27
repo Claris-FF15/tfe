@@ -4,7 +4,9 @@ class BadgeCreate(BaseModel):
     badge_id: str
     user_id: int
     active: bool
-#add update 
+
+class BadgeUpdate(BaseModel):
+    active: bool
 
 class BadgeResponse(BaseModel):
     id: int

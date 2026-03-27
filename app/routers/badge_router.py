@@ -1,10 +1,8 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from db.database import get_db
-from services.user_service import UserService
-from schemas.user import *
-from dependencies.auth import get_current_user
-from models.badge import Badge
+from services.badge_service import BadgeService  
+from schemas.badge import BadgeCreate, BadgeResponse, BadgeUpdate  
 
 router = APIRouter(prefix="/badges", tags=["Badges"])
 
@@ -15,11 +13,17 @@ def create_badge(
 ):
     return BadgeService.create_badge(db, data)
 
-@router.delete("/{badge_id}", status_code=status.TTP_204_NO_CONTENT)
+@router.put("/{badge_id}", response_model=BadgeResponse)
+def update_badge(
+    badge_id: int,
+    data: BadgeUpdate,
+    db: Session = Depends(get_db)
+):
+    return BadgeService.update_badge(db, badge_id, data)
+
+@router.delete("/{badge_id}", status_code=status.HTTP_204_NO_CONTENT) 
 def delete_badge(
     badge_id: int,
     db: Session = Depends(get_db)
-)
-return BadgeService.delete_user(db, badge_id)
-
-#router update to add
+):
+    return BadgeService.delete_badge(db, badge_id)
