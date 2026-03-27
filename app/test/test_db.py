@@ -1,18 +1,12 @@
-# test_db.py
-from sqlalchemy import create_engine, Column, String, Integer, Boolean, DateTime, ForeignKey, inspect
-from sqlalchemy.orm import sessionmaker, declarative_base, relationship
+from sqlalchemy import create_engine, inspect
+from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 import datetime
 
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:example@localhost:5432/badge_db"
-
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
-
-
+SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-db = SessionLocal()
-
-
 Base = declarative_base()
 
 class User(Base):
@@ -38,20 +32,31 @@ class AccessLog(Base):
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
     allowed = Column(Boolean)
 
+class Door(Base):
+    __tablename__ = "doors"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    location = Column(String, nullable=False)
+    active = Column(Boolean, nullable=False, default=True)
 
-Base.metadata.create_all(bind=engine)
-print("Tables créées ✅")
+def test_create_tables():
+    Base.metadata.create_all(bind=engine)
+    inspector = inspect(engine)
+    tables = inspector.get_table_names()
+    assert "users" in tables
+    assert "badges" in tables
+    assert "access_logs" in tables
+    assert "doors" in tables
 
-try:
-    new_user = User(name="Clarisse")
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    print("Utilisateur ajouté :", new_user.id, new_user.name)
-except Exception as e:
-    print("Erreur insertion :", e)
-finally:
-    db.close()
-
-inspector = inspect(engine)
-print("Tables existantes :", inspector.get_table_names())
+def test_insert_user():
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    try:
+        user = User(name="Clarisse")
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        assert user.id is not None
+        assert user.name == "Clarisse"
+    finally:
+        db.close()
