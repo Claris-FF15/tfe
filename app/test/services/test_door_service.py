@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import MagicMock
 from services.door_service import DoorService
 from schemas.door import DoorCreate, DoorUpdate
-from models import Door
+from models.door import Door
 from fastapi import HTTPException
 
 def test_get_all_doors(monkeypatch):
