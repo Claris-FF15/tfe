@@ -14,9 +14,15 @@ class Badge(Base):
     __tablename__ = "badge"
     id = Column(Integer, primary_key=True, index=True)
     badge_id = Column(String, unique=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    active = Column(Boolean, default=True)
-    user = relationship("utilisateur", back_populates="badge")
+    user_id = Column(Integer, ForeignKey("utilisateur.id")) 
+    user = relationship("User", back_populates="badges") 
+
+class Door(Base): 
+    __tablename__ = "doors"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    location = Column(String, nullable=False)
+    active = Column(Boolean, nullable=False, default=True)
 
 class AccessLog(Base):
     __tablename__ = "access_logs"
