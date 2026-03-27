@@ -3,6 +3,8 @@ from main import app
 from unittest.mock import MagicMock
 from services.user_service import UserService
 
+client = TestClient(app)
+
 def test_create_user_api(monkeypatch):
     fake_user = {
         "id": 1,
