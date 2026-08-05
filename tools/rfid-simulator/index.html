@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulateur Arduino + RFID</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --bg-void:#0B0E11;
+    --bg-panel:#12171C;
+    --bg-panel-raised:#171D23;
+    --line:#232B32;
+    --text-primary:#E4E9ED;
+    --text-dim:#6B7680;
+    --text-faint:#454E56;
+    --cyan:#3DDBD9;
+    --green:#3FCF6E;
+    --red:#FF5C5C;
+    --amber:#F2B84B;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg-void);
+    color:var(--text-primary);
+    font-family:'Space Grotesk',sans-serif;
+    min-height:100vh;
+    padding:20px;
+  }
+  ::selection{background:var(--cyan);color:#04100f;}
+  *:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;}
+
+  .wrap{max-width:1220px;margin:0 auto;}
+
+  header{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);}
+  h1{font-size:19px;font-weight:600;letter-spacing:.02em;margin:0;}
+  .sub{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text-dim);margin:2px 0 16px;line-height:1.6;max-width:720px;}
+  .sub b{color:var(--text-dim);font-weight:600;}
+
+  /* top config strip */
+  .config-strip{
+    display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+    background:var(--bg-panel);border:1px solid var(--line);border-radius:8px;
+    padding:12px 16px;margin-bottom:1px;
+  }
+  .field{display:flex;align-items:center;gap:8px;}
+  .field label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-dim);white-space:nowrap;}
+  .field input{
+    background:var(--bg-panel-raised);border:1px solid var(--line);color:var(--text-primary);
+    font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border-radius:4px;width:220px;
+  }
+  button{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12px;border-radius:5px;border:1px solid var(--line);cursor:pointer;transition:border-color .15s, background .15s, color .15s;}
+  .btn-ghost{background:transparent;color:var(--text-dim);padding:8px 12px;}
+  .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
+  .status-row{display:flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);margin-left:auto;}
+  .status-led{width:7px;height:7px;border-radius:50%;background:var(--text-faint);flex-shrink:0;}
+  .status-led.ok{background:var(--green);box-shadow:0 0 6px var(--green);}
+  .status-led.bad{background:var(--red);box-shadow:0 0 6px var(--red);}
+
+  /* main layout */
+  .main{display:flex;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:1px;}
+  .scene-panel{background:var(--bg-panel);flex:1 1 auto;padding:16px;min-width:0;}
+  .tray-panel{background:var(--bg-panel);width:280px;flex:0 0 280px;padding:16px;}
+  @media (max-width:860px){
+    .main{flex-direction:column;}
+    .tray-panel{width:100%;flex:1 1 auto;}
+  }
+
+  .panel-title{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin:0 0 12px;}
+
+  /* scene */
+  .scene-wrap{position:relative;width:100%;}
+  .scene-wrap svg{width:100%;height:auto;display:block;}
+  .dropzone{
+    position:absolute;border-radius:16px;border:2px dashed transparent;
+    transition:border-color .15s, background .15s;
+  }
+  .dropzone.drop-hover{border-color:var(--amber);background:rgba(242,184,75,.08);}
+
+  @keyframes ringpulse{
+    0%{opacity:.9;transform:scale(.5);}
+    70%{opacity:.2;}
+    100%{opacity:0;transform:scale(1.6);}
+  }
+  .ring-pulse{transform-origin:635px 115px;opacity:0;}
+  .ring-pulse.active{animation:ringpulse 1s ease-out;}
+
+  /* badge tray */
+  .badge-chip{
+    display:flex;align-items:center;gap:9px;
+    background:var(--bg-panel-raised);border:1px solid var(--line);border-radius:8px;
+    padding:9px 10px;margin-bottom:9px;cursor:grab;user-select:none;touch-action:none;
+  }
+  .badge-chip:active{cursor:grabbing;}
+  .badge-chip.dragging-source{opacity:.35;}
+  .chip-icon{flex:0 0 auto;color:var(--cyan);}
+  .chip-meta{min-width:0;flex:1 1 auto;}
+  .chip-label{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .chip-uid{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim);}
+  .rm-btn{background:none;border:none;color:var(--text-faint);font-size:15px;padding:2px 4px;line-height:1;}
+  .rm-btn:hover{color:var(--red);}
+  .chip-ghost{position:fixed;z-index:999;pointer-events:none;opacity:.9;box-shadow:0 8px 24px rgba(0,0,0,.5);border-radius:8px;}
+  .drag-hint{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-faint);margin:2px 0 14px;line-height:1.6;}
+
+  .add-form{display:flex;flex-direction:column;gap:7px;margin-top:16px;}
+  .add-form input{width:100%;background:var(--bg-panel-raised);border:1px solid var(--line);color:var(--text-primary);font-family:'IBM Plex Mono',monospace;font-size:12px;padding:8px 9px;border-radius:4px;}
+  .add-btn{padding:8px;background:var(--bg-panel-raised);color:var(--text-dim);font-size:11.5px;}
+  .add-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+
+  /* log */
+  .log-panel{background:var(--bg-panel);border:1px solid var(--line);border-top:none;padding:14px 16px;}
+  .log{font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.7;max-height:170px;overflow-y:auto;}
+  .log-entry{border-top:1px solid var(--line);padding:7px 0;}
+  .log-entry:first-child{border-top:none;}
+  .log-line{white-space:pre-wrap;word-break:break-all;}
+  .log-time{color:var(--text-faint);}
+  .log-tag{font-weight:600;}
+  .log-tag.req{color:var(--cyan);}
+  .log-tag.ok{color:var(--green);}
+  .log-tag.err{color:var(--red);}
+  .log-empty{color:var(--text-faint);font-style:italic;}
+
+  .footnote{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-faint);margin-top:14px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="dot"></span>
+    <h1>Simulateur Arduino + RFID</h1>
+  </header>
+  <p class="sub">Arduino relié à un lecteur RFID et un écran LCD, entièrement virtuels. Glisse un badge sur le module RFID (ou clique dessus / valide au clavier) pour simuler un passage — une vraie requête HTTP part vers ton API, et l'écran affiche l'accès autorisé ou refusé. <b>Aucune installation, aucun hardware requis.</b></p>
+
+  <div class="config-strip">
+    <div class="field"><label for="apiUrl">Endpoint API</label><input type="text" id="apiUrl" value="http://localhost:8000/api/v1/scans"></div>
+    <div class="field"><label for="readerId">Lecteur</label><input type="text" id="readerId" value="reader-01" style="width:110px;"></div>
+    <button class="btn-ghost" id="testBtn">Tester la connexion</button>
+    <div class="status-row"><span class="status-led" id="connLed"></span><span id="connText">Non testé</span></div>
+  </div>
+
+  <div class="main">
+    <div class="scene-panel">
+      <p class="panel-title">Montage virtuel</p>
+      <div class="scene-wrap" id="sceneWrap">
+        <svg id="scene" viewBox="0 0 900 460" xmlns="http://www.w3.org/2000/svg">
+          <!-- Arduino board -->
+          <rect x="30" y="110" width="380" height="280" rx="14" fill="#0e6e74" stroke="#0a4d51" stroke-width="2"/>
+          <rect x="4" y="150" width="30" height="50" rx="3" fill="#c9d3d6" stroke="#8a9498"/>
+          <circle cx="46" cy="352" r="15" fill="#111417" stroke="#555f63" stroke-width="2"/>
+          <circle cx="370" cy="140" r="7" fill="#2c363a"/>
+          <rect x="150" y="215" width="110" height="85" rx="4" fill="#090c0e" stroke="#000"/>
+          <text x="205" y="262" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#3a4448">ATMEGA328P</text>
+          <rect x="55" y="106" width="325" height="8" rx="2" fill="#0a1517"/>
+          <rect x="55" y="382" width="325" height="8" rx="2" fill="#0a1517"/>
+          <text x="60" y="378" font-family="IBM Plex Mono, monospace" font-size="11" fill="#7fd4d8" letter-spacing="2">ARDUINO UNO</text>
+          <circle id="arduinoLed" cx="340" cy="196" r="5" fill="#454E56"/>
+          <text x="330" y="180" font-family="IBM Plex Mono, monospace" font-size="7" fill="#5a6468">L</text>
+
+          <!-- RFID module -->
+          <rect x="560" y="40" width="150" height="150" rx="8" fill="#1785a0" stroke="#0e5568" stroke-width="2"/>
+          <rect x="580" y="60" width="110" height="110" fill="none" stroke="#d9a441" stroke-width="2.5"/>
+          <rect x="592" y="72" width="86" height="86" fill="none" stroke="#d9a441" stroke-width="2"/>
+          <rect x="604" y="84" width="62" height="62" fill="none" stroke="#d9a441" stroke-width="1.5"/>
+          <rect x="616" y="96" width="38" height="38" fill="none" stroke="#d9a441" stroke-width="1.5"/>
+          <rect x="565" y="45" width="26" height="16" rx="2" fill="#090c0e"/>
+          <text x="635" y="34" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#9be8f0" letter-spacing="1">RC522</text>
+          <circle id="ring1" class="ring-pulse" cx="635" cy="115" r="55" fill="none" stroke="#F2B84B" stroke-width="2"/>
+          <circle id="ring2" class="ring-pulse" cx="635" cy="115" r="55" fill="none" stroke="#F2B84B" stroke-width="2" style="animation-delay:.2s"/>
+
+          <!-- LCD -->
+          <rect x="480" y="250" width="260" height="112" rx="8" fill="#171D23" stroke="#232B32" stroke-width="2"/>
+          <rect id="lcdScreen" x="498" y="266" width="224" height="80" rx="3" fill="#1b3a35"/>
+          <text id="lcdLine1" x="610" y="300" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="15" font-weight="600" fill="#bfe8d0">SYSTEME PRET</text>
+          <text id="lcdLine2" x="610" y="325" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#7fae9c">Presentez un badge</text>
+
+          <g id="wires"></g>
+        </svg>
+        <div class="dropzone" id="dropzone"></div>
+      </div>
+    </div>
+
+    <div class="tray-panel">
+      <p class="panel-title">Badges</p>
+      <p class="drag-hint">Glisse une carte sur le module RFID, ou clique / appuie sur Entrée pour la scanner directement.</p>
+      <div id="badgeList"></div>
+      <div class="add-form">
+        <input type="text" id="newLabel" placeholder="Nom (ex : Alice)">
+        <input type="text" id="newUid" placeholder="UID (auto si vide)">
+        <button class="add-btn" id="addBtn">+ Ajouter un badge</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="log-panel">
+    <p class="panel-title">Journal des évènements</p>
+    <div class="log" id="log"><div class="log-empty">En attente du premier scan…</div></div>
+  </div>
+
+  <p class="footnote">Payload envoyé : { reader_id, badge_uid, timestamp }. Si ton backend attend d'autres noms de champs, ajuste sendScan() / tapBadge() directement dans ce fichier (HTML/JS brut).<br>⚠️ Si l'API tourne sur un autre domaine, active CORS côté serveur pour l'origine de cette page (ou "*" en démo).</p>
+</div>
+
+<script>
+const NS = 'http://www.w3.org/2000/svg';
+
+let badges = [
+  {label:'Alice Martin', uid:'04A3B2C1'},
+  {label:'Badge perdu', uid:'FFDEAD00'},
+];
+
+function randomUid(){
+  const bytes = [];
+  for(let i=0;i<4;i++) bytes.push(Math.floor(Math.random()*256).toString(16).padStart(2,'0').toUpperCase());
+  return bytes.join('');
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ---------- wires ---------- */
+function drawWires(fromPts, toPts, colors, group){
+  fromPts.forEach((p, i) => {
+    const q = toPts[i % toPts.length];
+    const c = colors[i % colors.length];
+    const midY = (p.y + q.y) / 2;
+    const path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', `M ${p.x} ${p.y} C ${p.x} ${p.y + (q.y-p.y)*0.5}, ${q.x} ${q.y - (q.y-p.y)*0.5}, ${q.x} ${q.y}`);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', c);
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('opacity', '0.85');
+    group.appendChild(path);
+    [p, q].forEach(pt => {
+      const dot = document.createElementNS(NS, 'circle');
+      dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y); dot.setAttribute('r', 2.5);
+      dot.setAttribute('fill', c);
+      group.appendChild(dot);
+    });
+  });
+}
+
+function buildWires(){
+  const group = document.getElementById('wires');
+  const rfidColors = ['#e74c3c','#2c2c2c','#f1c40f','#ecf0f1','#e67e22','#2980b9','#27ae60'];
+  const arduinoTop = [90,115,140,165,190,215,240].map(x=>({x,y:108}));
+  const rfidBottom = [575,592,609,626,643,660,677].map(x=>({x,y:190}));
+  drawWires(arduinoTop, rfidBottom, rfidColors, group);
+
+  const lcdColors = ['#e74c3c','#2c2c2c','#2980b9','#27ae60'];
+  const arduinoBottom = [280,300,320,340].map(x=>({x,y:390}));
+  const lcdTop = [520,560,600,640].map(x=>({x,y:250}));
+  drawWires(arduinoBottom, lcdTop, lcdColors, group);
+}
+
+/* ---------- dropzone (mapped onto RFID module area of the viewBox) ---------- */
+function positionDropzone(){
+  const scene = document.getElementById('scene');
+  const wrap = document.getElementById('sceneWrap');
+  const zone = document.getElementById('dropzone');
+  const vb = scene.viewBox.baseVal;
+  const rect = scene.getBoundingClientRect();
+  const wrapRect = wrap.getBoundingClientRect();
+  const scale = rect.width / vb.width;
+  // RFID module bounding box in viewBox units, with a little padding
+  const bx = 550, by = 25, bw = 170, bh = 180;
+  zone.style.left = (rect.left - wrapRect.left + bx*scale) + 'px';
+  zone.style.top = (rect.top - wrapRect.top + by*scale) + 'px';
+  zone.style.width = (bw*scale) + 'px';
+  zone.style.height = (bh*scale) + 'px';
+}
+window.addEventListener('resize', positionDropzone);
+
+/* ---------- badge tray + drag ---------- */
+function renderBadges(){
+  const list = document.getElementById('badgeList');
+  list.innerHTML = '';
+  badges.forEach((b, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'badge-chip';
+    chip.tabIndex = 0;
+    chip.setAttribute('role','button');
+    chip.setAttribute('aria-label', `Badge ${b.label}, appuyer ou glisser sur le lecteur pour scanner`);
+    chip.dataset.i = i;
+    chip.innerHTML = `
+      <svg class="chip-icon" width="22" height="16" viewBox="0 0 22 16" fill="none" stroke="currentColor" stroke-width="1.4">
+        <rect x="1" y="1" width="20" height="14" rx="2"/>
+        <circle cx="7" cy="8" r="3"/>
+        <line x1="12.5" y1="6" x2="18" y2="6"/>
+        <line x1="12.5" y1="8.5" x2="18" y2="8.5"/>
+        <line x1="12.5" y1="11" x2="18" y2="11"/>
+      </svg>
+      <div class="chip-meta">
+        <div class="chip-label">${escapeHtml(b.label)}</div>
+        <div class="chip-uid">${escapeHtml(b.uid)}</div>
+      </div>
+      <button class="rm-btn" data-rm="${i}" title="Supprimer" aria-label="Supprimer ce badge">×</button>`;
+    list.appendChild(chip);
+  });
+  list.querySelectorAll('.rm-btn').forEach(btn=>{
+    btn.addEventListener('pointerdown', e=>e.stopPropagation());
+    btn.addEventListener('click', e=>{ e.stopPropagation(); badges.splice(+btn.dataset.rm,1); renderBadges(); });
+  });
+  list.querySelectorAll('.badge-chip').forEach(chip=>{
+    chip.addEventListener('pointerdown', startDrag);
+    chip.addEventListener('keydown', e=>{
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); tapBadge(badges[+chip.dataset.i]); }
+    });
+  });
+}
+
+function isOverDropzone(x,y){
+  const z = document.getElementById('dropzone').getBoundingClientRect();
+  return x>=z.left && x<=z.right && y>=z.top && y<=z.bottom;
+}
+
+function startDrag(e){
+  if(e.target.closest('.rm-btn')) return;
+  const chip = e.currentTarget;
+  const rect = chip.getBoundingClientRect();
+  const startX = e.clientX, startY = e.clientY;
+  let moved = false;
+  const ghost = chip.cloneNode(true);
+  ghost.classList.add('chip-ghost');
+  ghost.style.width = rect.width + 'px';
+  document.body.appendChild(ghost);
+  chip.classList.add('dragging-source');
+  const zone = document.getElementById('dropzone');
+
+  function place(x,y){
+    ghost.style.left = (x - rect.width/2) + 'px';
+    ghost.style.top = (y - rect.height/2) + 'px';
+  }
+  place(startX, startY);
+
+  function onMove(ev){
+    const dx = ev.clientX-startX, dy = ev.clientY-startY;
+    if(Math.hypot(dx,dy) > 6) moved = true;
+    place(ev.clientX, ev.clientY);
+    zone.classList.toggle('drop-hover', isOverDropzone(ev.clientX, ev.clientY));
+  }
+  function onUp(ev){
+    window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('pointerup', onUp);
+    ghost.remove();
+    chip.classList.remove('dragging-source');
+    zone.classList.remove('drop-hover');
+    const over = isOverDropzone(ev.clientX, ev.clientY);
+    if(!moved || over){
+      tapBadge(badges[+chip.dataset.i]);
+    }
+  }
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
+}
+
+document.getElementById('addBtn').addEventListener('click', ()=>{
+  const labelEl = document.getElementById('newLabel');
+  const uidEl = document.getElementById('newUid');
+  const label = labelEl.value.trim() || 'Badge sans nom';
+  const uid = uidEl.value.trim().toUpperCase() || randomUid();
+  badges.push({label, uid});
+  labelEl.value=''; uidEl.value='';
+  renderBadges();
+});
+
+/* ---------- log ---------- */
+function logEvent(tag, tagClass, lines){
+  const log = document.getElementById('log');
+  const empty = log.querySelector('.log-empty');
+  if(empty) empty.remove();
+  const time = new Date().toLocaleTimeString('fr-FR');
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML = `<span class="log-time">${time}</span> <span class="log-tag ${tagClass}">${tag}</span>` +
+    lines.map(l=>`<div class="log-line">${escapeHtml(l)}</div>`).join('');
+  log.prepend(entry);
+}
+
+/* ---------- scan logic ---------- */
+function setLcd(bg, l1, l2, l1Color, l2Color){
+  document.getElementById('lcdScreen').setAttribute('fill', bg);
+  const t1 = document.getElementById('lcdLine1');
+  const t2 = document.getElementById('lcdLine2');
+  t1.textContent = l1; t1.setAttribute('fill', l1Color);
+  t2.textContent = l2; t2.setAttribute('fill', l2Color);
+}
+
+let scanning = false;
+async function tapBadge(badge){
+  if(scanning) return;
+  scanning = true;
+  const apiUrl = document.getElementById('apiUrl').value.trim();
+  const readerId = document.getElementById('readerId').value.trim() || 'reader-01';
+  const led = document.getElementById('arduinoLed');
+
+  document.getElementById('ring1').classList.remove('active');
+  document.getElementById('ring2').classList.remove('active');
+  void document.getElementById('ring1').offsetWidth;
+  document.getElementById('ring1').classList.add('active');
+  document.getElementById('ring2').classList.add('active');
+  led.setAttribute('fill', '#F2B84B');
+  setLcd('#4a3a12', 'LECTURE...', badge.uid, '#F2B84B', '#c99a3a');
+
+  const payload = { reader_id: readerId, badge_uid: badge.uid, timestamp: new Date().toISOString() };
+  logEvent('SCAN', 'req', [JSON.stringify(payload)]);
+
+  let granted = null, statusLine = '', bodyText = '';
+  try{
+    const res = await fetch(apiUrl, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    bodyText = await res.text();
+    let parsed = null;
+    try{ parsed = JSON.parse(bodyText); }catch(e){}
+    if(parsed && typeof parsed === 'object'){
+      const flag = parsed.access_granted ?? parsed.granted ?? parsed.authorized ?? parsed.success;
+      if(typeof flag === 'boolean') granted = flag;
+    }
+    if(granted === null) granted = res.ok;
+    statusLine = `HTTP ${res.status}`;
+    logEvent(res.ok ? 'OK' : 'ERREUR', res.ok ? 'ok' : 'err', [statusLine, bodyText || '(réponse vide)']);
+  }catch(err){
+    granted = false;
+    statusLine = 'Échec réseau';
+    logEvent('ERREUR', 'err', [statusLine, err.message, "→ vérifie l'URL et la config CORS du serveur"]);
+  }
+
+  if(granted){
+    led.setAttribute('fill', '#3FCF6E');
+    setLcd('#163d22', 'ACCES AUTORISE', `${badge.label} · ${statusLine}`, '#6df29b', '#4fae7e');
+  } else {
+    led.setAttribute('fill', '#FF5C5C');
+    setLcd('#3d1616', 'ACCES REFUSE', `${badge.label} · ${statusLine}`, '#ff8080', '#c96a6a');
+  }
+
+  setTimeout(()=>{
+    led.setAttribute('fill', '#454E56');
+    setLcd('#1b3a35', 'SYSTEME PRET', 'Presentez un badge', '#bfe8d0', '#7fae9c');
+    scanning = false;
+  }, 3200);
+}
+
+document.getElementById('testBtn').addEventListener('click', async ()=>{
+  const apiUrl = document.getElementById('apiUrl').value.trim();
+  const led = document.getElementById('connLed');
+  const text = document.getElementById('connText');
+  text.textContent = 'Test en cours…';
+  led.className = 'status-led';
+  try{
+    const res = await fetch(apiUrl, {method:'OPTIONS'}).catch(()=>fetch(apiUrl));
+    led.className = 'status-led ok';
+    text.textContent = `Joignable (HTTP ${res.status})`;
+  }catch(err){
+    led.className = 'status-led bad';
+    text.textContent = "Injoignable — vérifie l'URL / CORS";
+  }
+});
+
+buildWires();
+renderBadges();
+positionDropzone();
+window.addEventListener('load', positionDropzone);
+setTimeout(positionDropzone, 200);
+</script>
+</body>
+</html>

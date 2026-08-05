@@ -1,0 +1,18 @@
+<div class="activity-container">
+
+  <h2>Activity Log</h2>
+
+  <div class="grid-container">
+
+    @if (isBrowser) {
+      <ag-grid-angular
+        [theme]="theme"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        class="ag-grid">
+      </ag-grid-angular>
+    }
+
+  </div>
+
+</div>
