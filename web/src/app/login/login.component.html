@@ -4,7 +4,7 @@
 
     <label>Email</label>
     <input type="email" placeholder="Email" formControlName="email" />
-    <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error">
+    <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"class="error">
       Email invalide
     </div>
 
@@ -13,7 +13,15 @@
     <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error">
       Mot de passe requis
     </div>
+    <!-- Message erreur API -->
+    <div 
+      *ngIf="errorMessage"
+      class="error">
+      {{ errorMessage }}
+    </div>
 
-    <button type="submit" [disabled]="loginForm.invalid">Se connecter</button>
+    <button type="submit" [disabled]="loginForm.invalid">
+      Se connecter
+    </button>
   </form>
 </div>

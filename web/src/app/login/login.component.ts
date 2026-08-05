@@ -1,26 +1,108 @@
 import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule
+  ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.sass']
 })
 export class LoginComponent {
+
+
   loginForm;
 
-  constructor(private fb: FormBuilder) {
+
+  errorMessage = "";
+
+
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
+
+
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.email
+        ]
+      ],
+
+      password: [
+        '',
+        Validators.required
+      ]
+
     });
+
+
   }
 
-  onSubmit() {
-    if (this.loginForm.invalid) return;
-    alert(`Email: ${this.loginForm.value.email}\nMot de passe: ${this.loginForm.value.password}`);
+
+
+  onSubmit(){
+
+
+    if(this.loginForm.invalid){
+      return;
+    }
+
+
+    this.authService.login({
+
+      email: this.loginForm.value.email!,
+      password: this.loginForm.value.password!
+
+    })
+    .subscribe({
+
+      next:(response)=>{
+
+
+        console.log("TOKEN :", response.access_token);
+
+
+        this.authService.saveToken(
+          response.access_token
+        );
+
+
+        this.router.navigate([
+          '/activities'
+        ]);
+
+
+      },
+
+
+    error:(err)=>{
+
+      console.log("Erreur API :", err);
+
+      this.errorMessage =
+        err.error?.detail ??
+        err.message ??
+        "Erreur de connexion";
+
+    }
+
+    });
+
+
   }
+
+
 }
