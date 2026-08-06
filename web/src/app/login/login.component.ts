@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 
-
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -17,12 +16,9 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent {
 
-
   loginForm;
 
-
   errorMessage = "";
-
 
   constructor(
     private fb: FormBuilder,
@@ -30,9 +26,7 @@ export class LoginComponent {
     private router: Router
   ) {
 
-
     this.loginForm = this.fb.group({
-
       email: [
         '',
         [
@@ -40,29 +34,20 @@ export class LoginComponent {
           Validators.email
         ]
       ],
-
       password: [
         '',
         Validators.required
       ]
-
     });
-
-
   }
 
-
-
   onSubmit(){
-
 
     if(this.loginForm.invalid){
       return;
     }
 
-
     this.authService.login({
-
       email: this.loginForm.value.email!,
       password: this.loginForm.value.password!
 
@@ -71,38 +56,27 @@ export class LoginComponent {
 
       next:(response)=>{
 
-
         console.log("TOKEN :", response.access_token);
-
-
         this.authService.saveToken(
           response.access_token
         );
-
-
-        this.router.navigate([
-          '/activities'
-        ]);
-
-
+        this.authService.fetchCurrentUser().subscribe({
+          next: () => {
+            this.router.navigate(['/activities']);
+          },
+          error: (err) => {
+            console.log("Erreur récupération profil :", err);
+            this.router.navigate(['/activities']);
+          }
+        });
       },
-
-
     error:(err)=>{
-
       console.log("Erreur API :", err);
-
       this.errorMessage =
         err.error?.detail ??
         err.message ??
         "Erreur de connexion";
-
     }
-
     });
-
-
   }
-
-
 }

@@ -7,6 +7,10 @@ class BadgeRepository:
         return db.query(Badge).filter(Badge.id == badge_id).first()
 
     @staticmethod
+    def find_by_user_id(db: Session, user_id: int) -> Badge | None:
+        return db.query(Badge).filter(Badge.user_id == user_id).first()
+
+    @staticmethod
     def save(db: Session, badge: Badge) -> Badge:
         db.add(badge)
         db.commit()

@@ -11,6 +11,13 @@ class BadgeService:
         return BadgeRepository.save(db, badge)
     
     @staticmethod
+    def get_badge_by_user(db: Session, user_id: int) -> Badge:
+        badge = BadgeRepository.find_by_user_id(db, user_id)
+        if not badge:
+            raise HTTPException(404, "Aucun badge assigné à cet utilisateur")
+        return badge
+    
+    @staticmethod
     def update_badge(db: Session, badge_id: int, data: BadgeUpdate) -> Badge:
         badge = BadgeRepository.find_by_id(db, badge_id)
         if not badge:

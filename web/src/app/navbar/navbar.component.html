@@ -1,0 +1,45 @@
+<nav class="navbar" [class.collapsed]="collapsed">
+
+  <div class="navbar-header">
+    <div class="brand" *ngIf="!collapsed">
+      <h3>BadgeApp</h3>
+    </div>
+    <button class="toggle-btn" (click)="toggle()" [attr.aria-label]="collapsed ? 'Déplier le menu' : 'Réduire le menu'">
+      <span *ngIf="!collapsed">&#8592;</span>
+      <span *ngIf="collapsed">&#8594;</span>
+    </button>
+  </div>
+
+  <div class="nav-links">
+    <a routerLink="/activities" routerLinkActive="active" [title]="collapsed ? 'Activities' : ''">
+      <span class="icon">&#128203;</span>
+      <span class="label" *ngIf="!collapsed">Activities</span>
+    </a>
+
+    <a routerLink="/users" routerLinkActive="active" [title]="collapsed ? 'Users' : ''">
+      <span class="icon">&#128101;</span>
+      <span class="label" *ngIf="!collapsed">Users</span>
+    </a>
+
+    <a routerLink="/badges" routerLinkActive="active" [title]="collapsed ? 'Badges' : ''">
+      <span class="icon">&#127991;</span>
+      <span class="label" *ngIf="!collapsed">Badges</span>
+    </a>
+  </div>
+
+  <div class="navbar-footer">
+    <div class="user-info" *ngIf="!collapsed && (currentUser$ | async) as user" 
+         (click)="goToProfile()" role="button" tabindex="0">
+      <div class="avatar">{{ user.first_name.charAt(0).toUpperCase() }}</div>
+      <div class="user-details">
+        <span class="user-name">{{ user.first_name }} {{ user.last_name }}</span>
+        <span class="user-role">{{ user.role.name }}</span>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="onLogout()" [title]="collapsed ? 'Déconnexion' : ''">
+      <span class="icon">&#9211;</span>
+      <span class="label" *ngIf="!collapsed">Déconnexion</span>
+    </button>
+  </div>
+
+</nav>

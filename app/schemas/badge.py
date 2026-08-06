@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 class BadgeCreate(BaseModel):
-    badge_id: str
+    uid: str
     user_id: int
     active: bool
 
@@ -10,7 +10,7 @@ class BadgeUpdate(BaseModel):
 
 class BadgeResponse(BaseModel):
     id: int
-    badge_id: str
+    uid: str
     user_id: int
     active: bool
 

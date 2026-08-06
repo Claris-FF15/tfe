@@ -1,0 +1,78 @@
+<div class="profile-page">
+  <div class="profile-card" *ngIf="currentUser$ | async as user">
+
+    <div class="profile-header">
+      <div class="avatar-large">{{ user.first_name.charAt(0).toUpperCase() }}</div>
+      <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+      <span class="role-badge">{{ user.role.name }}</span>
+    </div>
+
+    <div class="profile-body" *ngIf="!editMode">
+      <div class="info-row">
+        <span class="info-label">Prénom</span>
+        <span class="info-value">{{ user.first_name }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Nom</span>
+        <span class="info-value">{{ user.last_name }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Email</span>
+        <span class="info-value">{{ user.email }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Rôle</span>
+        <span class="info-value">{{ user.role.name }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Statut compte</span>
+        <span class="info-value" [class.active-status]="user.active">
+          {{ user.active ? 'Actif' : 'Inactif' }}
+        </span>
+      </div>
+
+      <div class="success" *ngIf="successMessage">{{ successMessage }}</div>
+
+      <button class="edit-btn" (click)="toggleEdit()">Modifier mon profil</button>
+    </div>
+
+    <form class="profile-form" *ngIf="editMode" [formGroup]="nameForm" (ngSubmit)="onSave(user)">
+      <label>Prénom</label>
+      <input type="text" formControlName="first_name" />
+
+      <label>Nom</label>
+      <input type="text" formControlName="last_name" />
+
+      <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <div class="form-actions">
+        <button type="button" class="cancel-btn" (click)="toggleEdit()">Annuler</button>
+        <button type="submit" class="save-btn" [disabled]="nameForm.invalid">Enregistrer</button>
+      </div>
+    </form>
+
+    <!-- Section Badge -->
+    <div class="badge-section">
+      <h3>Mon badge</h3>
+
+      <div class="badge-loading" *ngIf="badgeLoading">
+        Chargement du badge...
+      </div>
+
+        <div class="badge-card" *ngIf="!badgeLoading && badge">
+        <div class="badge-icon">&#127991;</div>
+        <div class="badge-details">
+            <span class="badge-uid">ID Badge : {{ badge.uid }}</span>
+            <span class="badge-status" [class.badge-active]="badge.active" [class.badge-inactive]="!badge.active">
+            {{ badge.active ? 'Actif' : 'Inactif' }}
+            </span>
+        </div>
+        </div>
+
+      <div class="badge-empty" *ngIf="!badgeLoading && !badge && badgeError">
+        Aucun badge assigné à ce compte pour le moment.
+      </div>
+    </div>
+
+  </div>
+</div>
