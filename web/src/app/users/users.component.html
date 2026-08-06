@@ -1,0 +1,19 @@
+<div class="users-container">
+
+  <h2>Users</h2>
+
+  <div class="grid-container">
+
+    @if (isBrowser) {
+      <ag-grid-angular
+        [theme]="theme"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        (gridReady)="onGridReady($event)"
+        class="ag-grid">
+      </ag-grid-angular>
+    }
+
+  </div>
+
+</div>

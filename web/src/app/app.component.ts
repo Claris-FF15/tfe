@@ -19,8 +19,10 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     if (this.authService.getToken()) {
       this.authService.fetchCurrentUser().subscribe({
-        error: () => this.authService.logout()
+        error: () => this.authService.logout() // logout() marque aussi userLoaded$ à true
       });
+    } else {
+      this.authService.logout(); // pas de token → pas connecté, mais "chargé" quand même
     }
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, tap, filter, take } from 'rxjs';
 
 export interface LoginRequest {
   email: string;
@@ -37,6 +37,9 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<CurrentUser | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
+  private userLoadedSubject = new BehaviorSubject<boolean>(false);
+  userLoaded$ = this.userLoadedSubject.asObservable();
+
   constructor(private http: HttpClient) {}
 
   login(data: LoginRequest): Observable<TokenResponse> {
@@ -45,7 +48,10 @@ export class AuthService {
 
   fetchCurrentUser(): Observable<CurrentUser> {
     return this.http.get<CurrentUser>(`${this.usersUrl}/me`).pipe(
-      tap(user => this.currentUserSubject.next(user))
+      tap(user => {
+        this.currentUserSubject.next(user);
+        this.userLoadedSubject.next(true);
+      })
     );
   }
 
@@ -69,5 +75,14 @@ export class AuthService {
   logout() {
     localStorage.removeItem('access_token');
     this.currentUserSubject.next(null);
+    this.userLoadedSubject.next(true); // "chargé" même si déconnecté, pour débloquer les guards
+  }
+
+  /** Utilisé par les guards : attend que le premier chargement (ou logout) soit terminé */
+  waitUntilLoaded(): Observable<boolean> {
+    return this.userLoaded$.pipe(
+      filter(loaded => loaded === true),
+      take(1)
+    );
   }
 }
