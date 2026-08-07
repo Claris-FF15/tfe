@@ -21,4 +21,8 @@ export class BadgeService {
   getMyBadge(): Observable<UserBadge> {
     return this.http.get<UserBadge>(`${this.badgesUrl}/me`);
   }
+
+  getBadgeByUserId(userId: number): Observable<UserBadge> {
+    return this.http.get<UserBadge>(`${this.badgesUrl}/user/${userId}`);
+  }
 }

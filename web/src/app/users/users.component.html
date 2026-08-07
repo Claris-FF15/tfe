@@ -1,6 +1,9 @@
 <div class="users-container">
 
-  <h2>Users</h2>
+  <div class="users-header">
+    <h2>Users</h2>
+    <button class="add-btn" (click)="goToCreate()">+ Ajouter un utilisateur</button>
+  </div>
 
   <div class="grid-container">
 
@@ -10,6 +13,7 @@
         [rowData]="rowData"
         [columnDefs]="columnDefs"
         (gridReady)="onGridReady($event)"
+        (rowClicked)="onRowClicked($event)"
         class="ag-grid">
       </ag-grid-angular>
     }

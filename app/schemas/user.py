@@ -13,7 +13,7 @@ class UserCreate(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
-    password: str
+    password: str | None = None
     role_id: int
 
 

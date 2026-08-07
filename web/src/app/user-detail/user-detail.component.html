@@ -1,0 +1,79 @@
+<div class="detail-page">
+  <div class="detail-card" *ngIf="!loading && user">
+
+    <button class="back-btn" (click)="goBack()">&#8592; Retour</button>
+
+    <div class="detail-header">
+      <div class="avatar-large">{{ user.first_name.charAt(0).toUpperCase() }}</div>
+      <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+      <span class="role-badge">{{ user.role.name }}</span>
+    </div>
+
+    <form class="detail-form" [formGroup]="nameForm" (ngSubmit)="onSave()">
+      <label>Prénom</label>
+      <input type="text" formControlName="first_name" [readonly]="!canEdit" />
+
+      <label>Nom</label>
+      <input type="text" formControlName="last_name" [readonly]="!canEdit" />
+
+      <label>Email</label>
+      <input type="text" [value]="user.email" readonly />
+
+      <label>Statut</label>
+      <input type="text" [value]="user.active ? 'Actif' : 'Inactif'" readonly />
+
+      <div class="success" *ngIf="successMessage">{{ successMessage }}</div>
+      <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <button type="submit" class="save-btn" *ngIf="canEdit" [disabled]="nameForm.invalid">
+        Enregistrer
+      </button>
+
+      <p class="no-permission" *ngIf="!canEdit">
+        Vous n'avez pas les droits pour modifier cet utilisateur.
+      </p>
+    </form>
+
+    <!-- Section Rôle - responsable sécurité uniquement -->
+    <div class="role-section" *ngIf="canEditRole">
+      <h3>Rôle</h3>
+      <form [formGroup]="roleForm" (ngSubmit)="onSaveRole()">
+        <select formControlName="role_id">
+          <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
+        </select>
+        <button type="submit" class="save-btn" [disabled]="roleForm.invalid">
+          Mettre à jour le rôle
+        </button>
+      </form>
+    </div>
+
+    <!-- Section Badge -->
+    <div class="badge-section">
+      <h3>Badge</h3>
+
+      <div class="badge-loading" *ngIf="badgeLoading">
+        Chargement du badge...
+      </div>
+
+      <div class="badge-card" *ngIf="!badgeLoading && badge">
+        <div class="badge-icon">&#127991;</div>
+        <div class="badge-details">
+          <span class="badge-uid">ID Badge : {{ badge.uid }}</span>
+          <span class="badge-status" [class.badge-active]="badge.active" [class.badge-inactive]="!badge.active">
+            {{ badge.active ? 'Actif' : 'Inactif' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="badge-empty" *ngIf="!badgeLoading && !badge && badgeError">
+        Aucun badge assigné à cet utilisateur.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="detail-card" *ngIf="!loading && !user">
+    <p class="error">{{ errorMessage }}</p>
+    <button class="back-btn" (click)="goBack()">&#8592; Retour</button>
+  </div>
+</div>

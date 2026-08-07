@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Inject, PLATFORM_ID } from '@angular/core';
+import { Router } from '@angular/router';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridApi, GridReadyEvent, themeQuartz } from 'ag-grid-community';
+import { ColDef, GridApi, GridReadyEvent, RowClickedEvent, themeQuartz } from 'ag-grid-community';
 import { UserService, UserRow } from '../services/user.service';
 
 @Component({
@@ -36,6 +37,7 @@ export class UsersComponent implements OnInit {
 
   constructor(
     private userService: UserService,
+    private router: Router,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -46,12 +48,16 @@ export class UsersComponent implements OnInit {
     this.loadUsers();
   }
 
-  ngOnInit(): void {
-    if (!this.isBrowser) {
-      return;
-    }
-    // fallback si onGridReady n'a pas encore fourni l'API au moment où les données seraient prêtes
+  onRowClicked(event: RowClickedEvent): void {
+    const user = event.data as UserRow;
+    this.router.navigate(['/users', user.id]);
   }
+
+  goToCreate(): void {
+    this.router.navigate(['/users/new']);
+  }
+
+  ngOnInit(): void {}
 
   private loadUsers(): void {
     this.userService.getAllUsers().subscribe({

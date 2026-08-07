@@ -14,9 +14,9 @@ router = APIRouter(prefix="/users", tags=["Users"])
 def create_user(
     data: UserCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_admin_or_security),
 ):
-    return UserService.create_user(db, data)
+    return UserService.create_user(db, data, current_user)
 
 
 @router.get("", response_model=list[UserResponse])
@@ -57,7 +57,7 @@ def update_name(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin_or_security),
 ):
-    return UserService.update_name(db, user_id, data)
+    return UserService.update_name(db, user_id, data, current_user)
 
 
 @router.put("/{user_id}/role", response_model=UserResponse)
@@ -65,6 +65,6 @@ def update_role(
     user_id: int,
     data: UserUpdateRole,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_admin_or_security),
 ):
     return UserService.update_role(db, user_id, data, current_user)
