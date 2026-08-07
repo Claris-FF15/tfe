@@ -11,6 +11,10 @@ class BadgeRepository:
         return db.query(Badge).filter(Badge.user_id == user_id).first()
 
     @staticmethod
+    def find_all(db: Session) -> list[Badge]:
+        return db.query(Badge).all()
+
+    @staticmethod
     def save(db: Session, badge: Badge) -> Badge:
         db.add(badge)
         db.commit()

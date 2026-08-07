@@ -1,0 +1,31 @@
+<div class="create-page">
+  <div class="create-card">
+
+    <button class="back-btn" (click)="goBack()">&#8592; Retour</button>
+
+    <h2>Ajouter un badge</h2>
+
+    <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+
+      <label>ID Badge (UID)</label>
+      <input type="text" formControlName="uid" placeholder="Ex: BADGE042" />
+
+      <label>ID Utilisateur lié</label>
+      <input type="number" formControlName="user_id" />
+
+      <label>Statut</label>
+      <select formControlName="active">
+        <option [value]="true">Actif</option>
+        <option [value]="false">Inactif</option>
+      </select>
+
+      <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <button type="submit" class="submit-btn" [disabled]="createForm.invalid">
+        Créer le badge
+      </button>
+
+    </form>
+
+  </div>
+</div>

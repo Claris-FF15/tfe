@@ -1,0 +1,74 @@
+<div class="detail-page">
+  <div class="detail-card" *ngIf="!loading && badge">
+
+    <button class="back-btn" (click)="goBack()">&#8592; Retour</button>
+
+    <div class="detail-header">
+      <div class="badge-icon-large">&#127991;</div>
+      <h2>{{ badge.uid }}</h2>
+      <span class="status-badge" [class.status-active]="badge.active" [class.status-inactive]="!badge.active">
+        {{ badge.active ? 'Actif' : 'Inactif' }}
+      </span>
+    </div>
+
+    <!-- Utilisateur lié -->
+    <div class="section">
+      <h3>Utilisateur lié</h3>
+      <div class="user-link" *ngIf="linkedUser" (click)="goToUser()" role="button" tabindex="0">
+        <div class="avatar">{{ linkedUser.first_name.charAt(0).toUpperCase() }}</div>
+        <div class="user-info-text">
+          <span class="user-name">{{ linkedUser.first_name }} {{ linkedUser.last_name }}</span>
+          <span class="user-email">{{ linkedUser.email }}</span>
+        </div>
+      </div>
+      <p class="empty-note" *ngIf="!linkedUser">Chargement...</p>
+    </div>
+
+    <!-- Statut -->
+    <div class="section">
+      <h3>Statut du badge</h3>
+      <form [formGroup]="statusForm" (ngSubmit)="onToggleStatus()">
+        <select formControlName="active">
+          <option [value]="true">Actif</option>
+          <option [value]="false">Inactif</option>
+        </select>
+        <button type="submit" class="save-btn">Mettre à jour</button>
+      </form>
+      <div class="success" *ngIf="successMessage">{{ successMessage }}</div>
+      <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+    </div>
+
+    <!-- Zones / portes accessibles -->
+    <div class="section">
+      <h3>Zones et accès autorisés</h3>
+      <div class="permissions-list" *ngIf="permissions.length > 0">
+        <div class="permission-row" *ngFor="let perm of permissions">
+          <span class="door-name">{{ perm.door.name }}</span>
+          <span class="door-location">{{ perm.door.location }}</span>
+          <span class="zone-tag" *ngIf="perm.door.zone">{{ perm.door.zone.name }}</span>
+        </div>
+      </div>
+      <p class="empty-note" *ngIf="permissions.length === 0">Aucun accès configuré.</p>
+    </div>
+
+    <!-- Dernière activité -->
+    <div class="section">
+      <h3>Dernière activité</h3>
+      <div class="logs-list" *ngIf="logs.length > 0">
+        <div class="log-row" *ngFor="let log of logs">
+          <span class="log-time">{{ log.timestamp | date:'dd/MM/yyyy HH:mm' }}</span>
+          <span class="log-result" [class.log-allowed]="log.allowed" [class.log-denied]="!log.allowed">
+            {{ log.allowed ? 'Autorisé' : 'Refusé' }}
+          </span>
+        </div>
+      </div>
+      <p class="empty-note" *ngIf="logs.length === 0">Aucune activité enregistrée.</p>
+    </div>
+
+  </div>
+
+  <div class="detail-card" *ngIf="!loading && !badge">
+    <p class="error">{{ errorMessage }}</p>
+    <button class="back-btn" (click)="goBack()">&#8592; Retour</button>
+  </div>
+</div>

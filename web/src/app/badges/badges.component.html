@@ -1,0 +1,23 @@
+<div class="badges-container">
+
+  <div class="badges-header">
+    <h2>Badges</h2>
+    <button class="add-btn" (click)="goToCreate()">+ Ajouter un badge</button>
+  </div>
+
+  <div class="grid-container">
+
+    @if (isBrowser) {
+      <ag-grid-angular
+        [theme]="theme"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        (gridReady)="onGridReady($event)"
+        (rowClicked)="onRowClicked($event)"
+        class="ag-grid">
+      </ag-grid-angular>
+    }
+
+  </div>
+
+</div>

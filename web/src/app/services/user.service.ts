@@ -20,6 +20,26 @@ export interface UserCreatePayload {
   role_id: number;
 }
 
+export interface Zone {
+  id: number;
+  name: string;
+  description: string | null;
+}
+
+export interface Door {
+  id: number;
+  name: string;
+  location: string;
+  active: boolean;
+  zone: Zone | null;
+}
+
+export interface AccessPermission {
+  id: number;
+  door: Door;
+  created_at: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -35,6 +55,10 @@ export class UserService {
 
   getUserById(id: number): Observable<UserRow> {
     return this.http.get<UserRow>(`${this.usersUrl}/${id}`);
+  }
+
+  getUserPermissions(id: number): Observable<AccessPermission[]> {
+    return this.http.get<AccessPermission[]>(`${this.usersUrl}/${id}/permissions`);
   }
 
   createUser(data: UserCreatePayload): Observable<UserRow> {

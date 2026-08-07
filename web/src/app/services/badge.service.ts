@@ -9,6 +9,20 @@ export interface UserBadge {
   active: boolean;
 }
 
+export interface BadgeCreatePayload {
+  uid: string;
+  user_id: number;
+  active: boolean;
+}
+
+export interface AccessLog {
+  id: number;
+  door_id: number | null;
+  timestamp: string;
+  allowed: boolean;
+  reason: string | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -24,5 +38,25 @@ export class BadgeService {
 
   getBadgeByUserId(userId: number): Observable<UserBadge> {
     return this.http.get<UserBadge>(`${this.badgesUrl}/user/${userId}`);
+  }
+
+  getAllBadges(): Observable<UserBadge[]> {
+    return this.http.get<UserBadge[]>(this.badgesUrl);
+  }
+
+  getBadgeById(id: number): Observable<UserBadge> {
+    return this.http.get<UserBadge>(`${this.badgesUrl}/${id}`);
+  }
+
+  getBadgeLogs(id: number): Observable<AccessLog[]> {
+    return this.http.get<AccessLog[]>(`${this.badgesUrl}/${id}/logs`);
+  }
+
+  createBadge(data: BadgeCreatePayload): Observable<UserBadge> {
+    return this.http.post<UserBadge>(this.badgesUrl, data);
+  }
+
+  updateBadge(id: number, active: boolean): Observable<UserBadge> {
+    return this.http.put<UserBadge>(`${this.badgesUrl}/${id}`, { active });
   }
 }

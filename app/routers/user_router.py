@@ -3,7 +3,9 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from services.user_service import UserService
 from repositories.user_repository import UserRepository
+from repositories.access_permission_repository import AccessPermissionRepository
 from schemas.user import UserCreate, UserUpdateName, UserUpdateRole, UserResponse
+from schemas.access_permission import AccessPermissionResponse
 from dependencies.auth import get_current_user, require_admin, require_admin_or_security
 from models.user import User
 
@@ -30,6 +32,15 @@ def list_users(
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.get("/{user_id}/permissions", response_model=list[AccessPermissionResponse])
+def get_user_permissions(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_security),
+):
+    return AccessPermissionRepository.find_by_user_id(db, user_id)
 
 
 @router.get("/{user_id}", response_model=UserResponse)
