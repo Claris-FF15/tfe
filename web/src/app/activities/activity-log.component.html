@@ -9,6 +9,9 @@
         [theme]="theme"
         [rowData]="rowData"
         [columnDefs]="columnDefs"
+        [getRowStyle]="getRowStyle"
+        (gridReady)="onGridReady($event)"
+        (rowClicked)="onRowClicked($event)"
         class="ag-grid">
       </ag-grid-angular>
     }

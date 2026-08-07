@@ -9,6 +9,8 @@ import { UserCreateComponent } from './user-create/user-create.component';
 import { BadgesComponent } from './badges/badges.component';
 import { BadgeCreateComponent } from './badge-create/badge-create.component';
 import { BadgeDetailComponent } from './badge-detail/badge-detail.component';
+import { ActivityDetailComponent } from './activities-detail/activity-detail.component';
+
 
 export const routes: Routes = [
 
@@ -22,4 +24,5 @@ export const routes: Routes = [
   { path: 'badges', component: BadgesComponent, canActivate: [adminOrSecurityGuard] },
   { path: 'badges/new', component: BadgeCreateComponent, canActivate: [adminOrSecurityGuard] },
   { path: 'badges/:id', component: BadgeDetailComponent, canActivate: [adminOrSecurityGuard] },
+  { path: 'activities/:id', component: ActivityDetailComponent, canActivate: [adminOrSecurityGuard] },
   ];

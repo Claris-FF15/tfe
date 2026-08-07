@@ -1,0 +1,37 @@
+<div class="detail-page">
+  <div class="detail-card" *ngIf="!loading && log">
+
+    <button class="back-btn" (click)="goBack()">&#8592; Retour</button>
+
+    <div class="detail-header" [class.header-denied]="!log.allowed">
+      <div class="status-icon">{{ log.allowed ? '✓' : '✕' }}</div>
+      <h2>{{ log.allowed ? 'Accès autorisé' : 'Accès refusé' }}</h2>
+    </div>
+
+    <div class="info-row">
+      <span class="info-label">Utilisateur</span>
+      <span class="info-value">{{ log.user ? (log.user.first_name + ' ' + log.user.last_name) : 'Inconnu' }}</span>
+    </div>
+
+    <div class="info-row">
+      <span class="info-label">Porte</span>
+      <span class="info-value">{{ log.door?.name ?? 'Inconnue' }}</span>
+    </div>
+
+    <div class="info-row">
+      <span class="info-label">Date</span>
+      <span class="info-value">{{ log.timestamp | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+    </div>
+
+    <div class="info-row" *ngIf="log.reason">
+      <span class="info-label">Raison</span>
+      <span class="info-value">{{ log.reason }}</span>
+    </div>
+
+  </div>
+
+  <div class="detail-card" *ngIf="!loading && !log">
+    <p class="error">{{ errorMessage }}</p>
+    <button class="back-btn" (click)="goBack()">&#8592; Retour</button>
+  </div>
+</div>

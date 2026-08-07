@@ -1,0 +1,68 @@
+.detail-page
+  display: flex
+  justify-content: center
+  padding: 40px 20px
+
+.detail-card
+  width: 480px
+  background-color: rgba(255, 255, 255, 0.95)
+  border-radius: 10px
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15)
+  padding: 40px
+  font-family: 'Segoe UI', Roboto, sans-serif
+
+.back-btn
+  background: none
+  border: none
+  color: #1f497d
+  font-weight: 500
+  cursor: pointer
+  margin-bottom: 20px
+  padding: 0
+
+.detail-header
+  display: flex
+  flex-direction: column
+  align-items: center
+  margin-bottom: 30px
+  padding: 20px
+  border-radius: 8px
+  background: rgba(46, 125, 50, 0.08)
+
+  h2
+    margin: 10px 0 0
+    color: #2e7d32
+    font-size: 1.4rem
+
+  &.header-denied
+    background: rgba(231, 76, 60, 0.08)
+
+    h2
+      color: #e74c3c
+
+.status-icon
+  font-size: 32px
+  font-weight: 700
+  color: inherit
+
+.info-row
+  display: flex
+  justify-content: space-between
+  padding: 12px 0
+  border-bottom: 1px solid #eee
+
+  &:last-of-type
+    border-bottom: none
+
+.info-label
+  color: #777
+  font-size: 0.9rem
+
+.info-value
+  font-weight: 500
+  color: #333
+
+.error
+  color: #e74c3c
+  font-size: 0.9rem
+  margin-bottom: 15px

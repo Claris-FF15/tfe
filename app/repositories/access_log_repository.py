@@ -13,3 +13,16 @@ class AccessLogRepository:
             .limit(limit)
             .all()
         )
+
+    @staticmethod
+    def find_all(db: Session, limit: int = 100) -> list[AccessLog]:
+        return (
+            db.query(AccessLog)
+            .order_by(AccessLog.timestamp.desc())
+            .limit(limit)
+            .all()
+        )
+
+    @staticmethod
+    def find_by_id(db: Session, log_id: int):
+        return db.query(AccessLog).filter(AccessLog.id == log_id).first()
