@@ -7,6 +7,7 @@ export interface UserBadge {
   uid: string;
   user_id: number;
   active: boolean;
+  last_activity: string | null;
 }
 
 export interface BadgeCreatePayload {

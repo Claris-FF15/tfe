@@ -3,7 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridApi, GridReadyEvent, RowClickedEvent, themeQuartz } from 'ag-grid-community';
+import { ColDef, GridApi, GridReadyEvent, RowClickedEvent, themeQuartz, ICellRendererParams } from 'ag-grid-community';
 import { BadgeService, UserBadge } from '../services/badge.service';
 
 @Component({
@@ -29,7 +29,39 @@ export class BadgesComponent implements OnInit {
       field: 'active',
       headerName: 'Statut',
       flex: 1,
-      valueFormatter: (params) => params.value ? 'Actif' : 'Inactif'
+      cellRenderer: (params: ICellRendererParams) => {
+        const isActive = params.value;
+        const span = document.createElement('span');
+        span.textContent = isActive ? 'Actif' : 'Inactif';
+        span.style.cursor = 'pointer';
+        span.style.fontWeight = '600';
+        span.style.padding = '3px 10px';
+        span.style.borderRadius = '20px';
+        span.style.fontSize = '0.8rem';
+        if (isActive) {
+          span.style.background = 'rgba(46, 125, 50, 0.12)';
+          span.style.color = '#2e7d32';
+        } else {
+          span.style.background = 'rgba(231, 76, 60, 0.12)';
+          span.style.color = '#e74c3c';
+        }
+        span.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggleStatus(params.data as UserBadge);
+        });
+        return span;
+      }
+    },
+    {
+      field: 'last_activity',
+      headerName: 'Dernière activité',
+      flex: 1.2,
+      valueFormatter: (params) => {
+        if (!params.value) {
+          return 'Aucune activité';
+        }
+        return new Date(params.value).toLocaleString('fr-FR');
+      }
     }
   ];
 
@@ -56,6 +88,13 @@ export class BadgesComponent implements OnInit {
   }
 
   ngOnInit(): void {}
+
+  toggleStatus(badge: UserBadge): void {
+    this.badgeService.updateBadge(badge.id, !badge.active).subscribe({
+      next: () => this.loadBadges(),
+      error: (err) => console.log('Erreur mise à jour statut:', err)
+    });
+  }
 
   private loadBadges(): void {
     this.badgeService.getAllBadges().subscribe({

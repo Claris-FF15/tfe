@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 class BadgeCreate(BaseModel):
     uid: str
@@ -13,6 +14,7 @@ class BadgeResponse(BaseModel):
     uid: str
     user_id: int
     active: bool
+    last_activity: datetime | None = None
 
     class Config:
         from_attributes = True

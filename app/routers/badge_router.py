@@ -36,7 +36,7 @@ def list_badges(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin_or_security),
 ):
-    return BadgeRepository.find_all(db)
+    return BadgeService.list_badges_with_activity(db)
 
 
 @router.get("/{badge_id}/logs", response_model=list[AccessLogResponse])
