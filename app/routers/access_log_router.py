@@ -11,10 +11,11 @@ router = APIRouter(prefix="/access-logs", tags=["Access Logs"])
 
 @router.get("", response_model=list[AccessLogResponse])
 def list_access_logs(
+    allowed: bool | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin_or_security),
 ):
-    return AccessLogRepository.find_all(db)
+    return AccessLogRepository.find_all(db, allowed=allowed)
 
 
 @router.get("/{log_id}", response_model=AccessLogResponse)

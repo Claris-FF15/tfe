@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface AccessLogEntry {
@@ -20,8 +20,12 @@ export class AccessLogService {
 
   constructor(private http: HttpClient) {}
 
-  getAllLogs(): Observable<AccessLogEntry[]> {
-    return this.http.get<AccessLogEntry[]>(this.logsUrl);
+  getAllLogs(allowed?: boolean): Observable<AccessLogEntry[]> {
+    let params = new HttpParams();
+    if (allowed !== undefined) {
+      params = params.set('allowed', allowed.toString());
+    }
+    return this.http.get<AccessLogEntry[]>(this.logsUrl, { params });
   }
 
   getLogById(id: number): Observable<AccessLogEntry> {

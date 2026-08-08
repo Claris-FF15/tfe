@@ -1,0 +1,21 @@
+<div class="activity-container">
+
+  <h2>Incidents - Accès refusés</h2>
+
+  <div class="grid-container">
+
+    @if (isBrowser) {
+      <ag-grid-angular
+        [theme]="theme"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        [getRowStyle]="getRowStyle"
+        (gridReady)="onGridReady($event)"
+        (rowClicked)="onRowClicked($event)"
+        class="ag-grid">
+      </ag-grid-angular>
+    }
+
+  </div>
+
+</div>

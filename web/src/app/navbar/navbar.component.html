@@ -11,15 +11,20 @@
   </div>
 
   <div class="nav-links">
-    <a routerLink="/activities" routerLinkActive="active" [title]="collapsed ? 'Activities' : ''">
-      <span class="icon">&#128203;</span>
-      <span class="label" *ngIf="!collapsed">Activities</span>
-    </a>
+<a routerLink="/activities" routerLinkActive="active" [title]="collapsed ? 'Activities' : ''">
+  <span class="icon">&#128203;</span>
+  <span class="label" *ngIf="!collapsed">Activities</span>
+</a>
 
-    <a routerLink="/users" routerLinkActive="active" [title]="collapsed ? 'Users' : ''">
-      <span class="icon">&#128101;</span>
-      <span class="label" *ngIf="!collapsed">Users</span>
-    </a>
+<a routerLink="/incidents" routerLinkActive="active" [title]="collapsed ? 'Incidents' : ''">
+  <span class="icon">&#9888;</span>
+  <span class="label" *ngIf="!collapsed">Incidents</span>
+</a>
+
+<a routerLink="/users" routerLinkActive="active" [title]="collapsed ? 'Users' : ''">
+  <span class="icon">&#128101;</span>
+  <span class="label" *ngIf="!collapsed">Users</span>
+</a>
 
     <a routerLink="/badges" routerLinkActive="active" [title]="collapsed ? 'Badges' : ''">
       <span class="icon">&#127991;</span>
