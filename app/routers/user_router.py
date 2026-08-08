@@ -4,7 +4,7 @@ from db.database import get_db
 from services.user_service import UserService
 from repositories.user_repository import UserRepository
 from repositories.access_permission_repository import AccessPermissionRepository
-from schemas.user import UserCreate, UserUpdateName, UserUpdateRole, UserResponse
+from schemas.user import UserCreate, UserUpdateName, UserUpdateRole, UserResponse, UserUpdateActive
 from schemas.access_permission import AccessPermissionResponse
 from dependencies.auth import get_current_user, require_admin, require_admin_or_security
 from models.user import User
@@ -79,3 +79,13 @@ def update_role(
     current_user: User = Depends(require_admin_or_security),
 ):
     return UserService.update_role(db, user_id, data, current_user)
+
+
+@router.put("/{user_id}/active", response_model=UserResponse)
+def update_active(
+    user_id: int,
+    data: UserUpdateActive,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_security),
+):
+    return UserService.update_active(db, user_id, data.active, current_user)

@@ -3,7 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridApi, GridReadyEvent, RowClickedEvent, themeQuartz } from 'ag-grid-community';
+import { ColDef, GridApi, GridReadyEvent, RowClickedEvent, themeQuartz, ICellRendererParams } from 'ag-grid-community';
 import { UserService, UserRow } from '../services/user.service';
 
 @Component({
@@ -31,7 +31,28 @@ export class UsersComponent implements OnInit {
       field: 'active',
       headerName: 'Statut',
       flex: 1,
-      valueFormatter: (params) => params.value ? 'Actif' : 'Inactif'
+      cellRenderer: (params: ICellRendererParams) => {
+        const isActive = params.value;
+        const span = document.createElement('span');
+        span.textContent = isActive ? 'Actif' : 'Inactif';
+        span.style.cursor = 'pointer';
+        span.style.fontWeight = '600';
+        span.style.padding = '3px 10px';
+        span.style.borderRadius = '20px';
+        span.style.fontSize = '0.8rem';
+        if (isActive) {
+          span.style.background = 'rgba(46, 125, 50, 0.12)';
+          span.style.color = '#2e7d32';
+        } else {
+          span.style.background = 'rgba(231, 76, 60, 0.12)';
+          span.style.color = '#e74c3c';
+        }
+        span.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggleStatus(params.data as UserRow);
+        });
+        return span;
+      }
     }
   ];
 
@@ -58,6 +79,13 @@ export class UsersComponent implements OnInit {
   }
 
   ngOnInit(): void {}
+
+  toggleStatus(user: UserRow): void {
+    this.userService.updateActive(user.id, !user.active).subscribe({
+      next: () => this.loadUsers(),
+      error: (err) => console.log('Erreur mise à jour statut:', err)
+    });
+  }
 
   private loadUsers(): void {
     this.userService.getAllUsers().subscribe({

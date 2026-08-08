@@ -36,6 +36,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
 
   nameForm;
   roleForm;
+  statusControl;
 
   private permissionSub?: Subscription;
 
@@ -56,6 +57,8 @@ export class UserDetailComponent implements OnInit, OnDestroy {
     this.roleForm = this.fb.group({
       role_id: this.fb.control<number | null>(null, Validators.required)
     });
+
+    this.statusControl = this.fb.control<boolean>(true);
   }
 
   ngOnInit(): void {
@@ -77,6 +80,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
           last_name: user.last_name
         });
         this.roleForm.patchValue({ role_id: user.role.id });
+        this.statusControl.setValue(user.active);
         this.evaluatePermissions(user);
         this.loading = false;
         this.cdr.detectChanges();
@@ -123,7 +127,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
         this.canEditRole = true;
       } else if (myRole === 'admin') {
         this.canEdit = currentUser.id === targetUser.id || targetRole === 'user';
-        this.canEditRole = false; // seul responsable_securite peut changer un rôle
+        this.canEditRole = false;
       } else {
         this.canEdit = false;
         this.canEditRole = false;
@@ -174,6 +178,33 @@ export class UserDetailComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  onUpdateStatus(): void {
+    if (!this.user) {
+      return;
+    }
+
+    this.userService.updateActive(
+      this.user.id,
+      this.statusControl.value!
+    ).subscribe({
+      next: (updated) => {
+        this.user = updated;
+        this.successMessage = 'Statut mis à jour avec succès';
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.detail ?? 'Erreur lors de la mise à jour du statut';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  goToBadge(): void {
+    if (this.badge) {
+      this.router.navigate(['/badges', this.badge.id]);
+    }
   }
 
   goBack(): void {

@@ -67,9 +67,8 @@ class UserService:
 
         allowed = False
         if current_role == "responsable_securite":
-            allowed = True  # peut tout modifier
+            allowed = True
         elif current_role == "admin":
-            # peut modifier son propre profil, ou un user simple
             allowed = current_user.id == user.id or target_role == "user"
 
         if not allowed:
@@ -77,6 +76,27 @@ class UserService:
 
         user.first_name = data.first_name
         user.last_name = data.last_name
+        return UserRepository.save(db, user)
+
+    @staticmethod
+    def update_active(db: Session, user_id: int, active: bool, current_user: User) -> User:
+        user = UserRepository.find_by_id(db, user_id)
+        if not user:
+            raise HTTPException(404, "Utilisateur non trouvé")
+
+        current_role = current_user.role.name.lower() if current_user.role else None
+        target_role = user.role.name.lower() if user.role else None
+
+        allowed = False
+        if current_role == "responsable_securite":
+            allowed = True
+        elif current_role == "admin":
+            allowed = current_user.id == user.id or target_role == "user"
+
+        if not allowed:
+            raise HTTPException(403, "Vous n'avez pas les droits pour modifier cet utilisateur")
+
+        user.active = active
         return UserRepository.save(db, user)
 
     @staticmethod

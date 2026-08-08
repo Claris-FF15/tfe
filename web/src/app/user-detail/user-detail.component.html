@@ -19,8 +19,18 @@
       <label>Email</label>
       <input type="text" [value]="user.email" readonly />
 
-      <label>Statut</label>
-      <input type="text" [value]="user.active ? 'Actif' : 'Inactif'" readonly />
+    <label>Statut</label>
+    <div class="status-row" *ngIf="canEdit">
+      <select [formControl]="statusControl">
+        <option [ngValue]="true">Actif</option>
+        <option [ngValue]="false">Inactif</option>
+      </select>
+      <button type="button" class="toggle-btn" (click)="onUpdateStatus()">
+        Mettre à jour
+      </button>
+    </div>
+
+    <input type="text" *ngIf="!canEdit" [value]="user.active ? 'Actif' : 'Inactif'" readonly />
 
       <div class="success" *ngIf="successMessage">{{ successMessage }}</div>
       <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
@@ -55,7 +65,7 @@
         Chargement du badge...
       </div>
 
-      <div class="badge-card" *ngIf="!badgeLoading && badge">
+      <div class="badge-card" *ngIf="!badgeLoading && badge" (click)="goToBadge()" role="button" tabindex="0">
         <div class="badge-icon">&#127991;</div>
         <div class="badge-details">
           <span class="badge-uid">ID Badge : {{ badge.uid }}</span>

@@ -81,4 +81,8 @@ export class UserService {
   deleteUser(id: number): Observable<void> {
     return this.http.delete<void>(`${this.usersUrl}/${id}`);
   }
+
+  updateActive(id: number, active: boolean): Observable<UserRow> {
+    return this.http.put<UserRow>(`${this.usersUrl}/${id}/active`, { active });
+  }
 }
