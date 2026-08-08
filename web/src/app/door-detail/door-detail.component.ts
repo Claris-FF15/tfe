@@ -92,10 +92,19 @@ export class DoorDetailComponent implements OnInit {
     });
   }
 
-  get availableUsers(): UserRow[] {
+    get availableUsers(): UserRow[] {
     const authorizedIds = this.authorizedUsers.map(a => a.user.id);
-    return this.allUsers.filter(u => !authorizedIds.includes(u.id));
-  }
+    let filtered = this.allUsers.filter(u => !authorizedIds.includes(u.id));
+
+    if (this.isServeurZone()) {
+        filtered = filtered.filter(u => {
+        const role = u.role?.name?.toLowerCase();
+        return role === 'admin' || role === 'responsable_securite';
+        });
+    }
+
+    return filtered;
+    }
 
   isServeurZone(): boolean {
     return this.door?.zone?.name.toLowerCase() === 'salle serveur';
