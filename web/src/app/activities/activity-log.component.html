@@ -1,9 +1,11 @@
 <div class="activity-container">
 
-  <h2>Activity Log</h2>
+  <div class="activity-header">
+    <h2>Activity Log</h2>
+    <span class="live-badge"><span class="dot"></span>Live</span>
+  </div>
 
   <div class="grid-container">
-
     @if (isBrowser) {
       <ag-grid-angular
         [theme]="theme"
@@ -15,7 +17,6 @@
         class="ag-grid">
       </ag-grid-angular>
     }
-
   </div>
 
 </div>
