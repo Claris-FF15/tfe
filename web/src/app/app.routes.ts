@@ -12,6 +12,7 @@ import { BadgeDetailComponent } from './badge-detail/badge-detail.component';
 import { ActivityDetailComponent } from './activities-detail/activity-detail.component';
 import { IncidentsComponent } from './incidents/incidents.component';
 import { ZonesComponent } from './zones/zones.component';
+import { ZoneCreateComponent } from './zone-create/zone-create.component';
 import { DoorDetailComponent } from './door-detail/door-detail.component';
 
 
@@ -30,5 +31,6 @@ export const routes: Routes = [
   { path: 'activities/:id', component: ActivityDetailComponent, canActivate: [adminOrSecurityGuard] },
   { path: 'incidents', component: IncidentsComponent, canActivate: [adminOrSecurityGuard] },
   { path: 'zones', component: ZonesComponent, canActivate: [adminOrSecurityGuard] },
+  { path: 'zones/new', component: ZoneCreateComponent, canActivate: [adminOrSecurityGuard] },
   { path: 'doors/:id', component: DoorDetailComponent, canActivate: [adminOrSecurityGuard] },
   ];

@@ -12,9 +12,14 @@ from models.user import User
 
 router = APIRouter(prefix="/doors", tags=["Doors"])
 
+
 @router.get("", response_model=list[DoorResponse])
-def get_all_doors(db: Session = Depends(get_db)):
+def get_all_doors(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_security),
+):
     return DoorService.get_all(db)
+
 
 @router.get("/{door_id}/authorized-users", response_model=list[DoorAuthorizedUser])
 def get_door_authorized_users(
@@ -23,6 +28,7 @@ def get_door_authorized_users(
     current_user: User = Depends(require_admin_or_security),
 ):
     return AccessPermissionRepository.find_by_door_id(db, door_id)
+
 
 @router.get("/{door_id}/logs", response_model=list[AccessLogResponse])
 def get_door_logs(
@@ -33,14 +39,30 @@ def get_door_logs(
 ):
     return AccessLogRepository.find_by_door_id(db, door_id, allowed=allowed)
 
+
 @router.post("", response_model=DoorResponse)
-def create_door(data: DoorCreate, db: Session = Depends(get_db)):
+def create_door(
+    data: DoorCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_security),
+):
     return DoorService.create_door(db, data)
 
+
 @router.put("/{door_id}", response_model=DoorResponse)
-def update_door(door_id: int, data: DoorUpdate, db: Session = Depends(get_db)):
+def update_door(
+    door_id: int,
+    data: DoorUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_security),
+):
     return DoorService.update_door(db, door_id, data)
 
+
 @router.delete("/{door_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_door(door_id: int, db: Session = Depends(get_db)):
+def delete_door(
+    door_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_security),
+):
     return DoorService.delete_door(db, door_id)

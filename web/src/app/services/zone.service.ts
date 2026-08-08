@@ -16,6 +16,22 @@ export interface DoorInZone {
   zone: Zone | null;
 }
 
+export interface ZoneWithDoors extends Zone {
+  doors: DoorInZone[];
+}
+
+export interface ZoneCreatePayload {
+  name: string;
+  description: string | null;
+}
+
+export interface DoorCreatePayload {
+  name: string;
+  location?: string;
+  active: boolean;
+  zone_id: number | null;
+}
+
 export interface DoorAuthorizedUser {
   id: number;
   user: { id: number; first_name: string; last_name: string };
@@ -41,16 +57,24 @@ export class ZoneService {
 
   constructor(private http: HttpClient) {}
 
-  getAllZones(): Observable<Zone[]> {
-    return this.http.get<Zone[]>(this.zonesUrl);
+  getAllZones(): Observable<ZoneWithDoors[]> {
+    return this.http.get<ZoneWithDoors[]>(this.zonesUrl);
   }
 
-  getZoneById(id: number): Observable<Zone> {
-    return this.http.get<Zone>(`${this.zonesUrl}/${id}`);
+  getZoneById(id: number): Observable<ZoneWithDoors> {
+    return this.http.get<ZoneWithDoors>(`${this.zonesUrl}/${id}`);
+  }
+
+  createZone(data: ZoneCreatePayload): Observable<ZoneWithDoors> {
+    return this.http.post<ZoneWithDoors>(this.zonesUrl, data);
   }
 
   getAllDoors(): Observable<DoorInZone[]> {
     return this.http.get<DoorInZone[]>(this.doorsUrl);
+  }
+
+  createDoor(data: DoorCreatePayload): Observable<DoorInZone> {
+    return this.http.post<DoorInZone>(this.doorsUrl, data);
   }
 
   getDoorAuthorizedUsers(doorId: number): Observable<DoorAuthorizedUser[]> {

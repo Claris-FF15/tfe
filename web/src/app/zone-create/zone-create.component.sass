@@ -1,0 +1,105 @@
+.create-page
+  display: flex
+  justify-content: center
+  padding: 40px 20px
+
+.create-card
+  width: 480px
+  background-color: #11161c
+  border: 1px solid #1e2530
+  border-radius: 10px
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4)
+  padding: 40px
+  font-family: 'IBM Plex Mono', monospace
+
+  h2
+    color: #ffffff
+    margin: 0 0 25px
+    font-size: 1.3rem
+    font-weight: 700
+    letter-spacing: 0.02em
+
+.back-btn
+  background: none
+  border: none
+  color: #6e7c8c
+  font-weight: 500
+  font-family: 'IBM Plex Mono', monospace
+  font-size: 0.85rem
+  cursor: pointer
+  margin-bottom: 20px
+  padding: 0
+  display: inline-flex
+  align-items: center
+  gap: 6px
+  transition: color 0.2s
+
+  &:hover
+    color: #e7edf3
+
+form
+  display: flex
+  flex-direction: column
+
+  label
+    font-weight: 600
+    margin-bottom: 6px
+    color: #6e7c8c
+    font-size: 0.75rem
+    text-transform: uppercase
+    letter-spacing: 0.04em
+
+  input, select
+    padding: 10px 12px
+    margin-bottom: 15px
+    background-color: #0e1319
+    border: 1px solid #1e2530
+    border-radius: 6px
+    color: #e7edf3
+    font-family: 'IBM Plex Mono', monospace
+    font-size: 0.9rem
+    transition: border-color 0.2s, box-shadow 0.2s
+
+    &:focus
+      border-color: #3fd0c9
+      outline: none
+      box-shadow: 0 0 0 3px rgba(63, 208, 201, 0.15)
+
+.submit-btn
+  padding: 12px
+  background-color: transparent
+  color: #3fd0c9
+  border: 1px solid rgba(63, 208, 201, 0.35)
+  font-weight: 600
+  font-family: 'IBM Plex Mono', monospace
+  font-size: 0.85rem
+  border-radius: 6px
+  cursor: pointer
+  transition: background-color 0.2s, border-color 0.2s
+
+  &:hover:not(:disabled)
+    background-color: rgba(63, 208, 201, 0.12)
+    border-color: #3fd0c9
+
+  &:disabled
+    background-color: transparent
+    color: #4a525c
+    border-color: #1e2530
+    cursor: not-allowed
+
+.error
+  color: #e5484d
+  font-size: 0.8rem
+  margin-bottom: 10px
+  font-family: 'IBM Plex Mono', monospace
+
+.info-note
+  color: #6e7c8c
+  font-size: 0.8rem
+  font-style: italic
+  margin-bottom: 15px
+  padding: 10px 12px
+  background: rgba(242, 167, 59, 0.08)
+  border: 1px solid rgba(242, 167, 59, 0.25)
+  border-radius: 6px
+  color: #f2a73b

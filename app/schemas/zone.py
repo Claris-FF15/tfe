@@ -1,6 +1,11 @@
 from pydantic import BaseModel
 
 
+class ZoneCreate(BaseModel):
+    name: str
+    description: str | None = None
+
+
 class DoorInZone(BaseModel):
     id: int
     name: str

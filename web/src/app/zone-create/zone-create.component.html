@@ -1,0 +1,40 @@
+<div class="create-page">
+  <div class="create-card">
+
+    <button class="back-btn" (click)="goBack()">&#8592; Retour</button>
+
+    <h2>Ajouter un accès</h2>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+      <label>Nom de la porte</label>
+      <input type="text" formControlName="door_name" placeholder="Ex: Porte principale" />
+
+      <label *ngIf="!creatingNewZone">Zone</label>
+      <select formControlName="zone_id" *ngIf="!creatingNewZone">
+        <option [ngValue]="null" disabled selected>Choisir une zone...</option>
+        <option *ngFor="let zone of zones" [ngValue]="zone.id">{{ zone.name }}</option>
+      </select>
+
+      <ng-container *ngIf="creatingNewZone">
+        <label>Nom de la nouvelle zone</label>
+        <input type="text" formControlName="new_zone_name" placeholder="Ex: Salle serveur" />
+
+        <label>Description</label>
+        <input type="text" formControlName="new_zone_description" placeholder="Optionnel" />
+      </ng-container>
+
+      <p class="info-note" (click)="toggleNewZone()" role="button" tabindex="0" style="cursor: pointer;">
+        {{ creatingNewZone ? '← Choisir une zone existante à la place' : '+ Créer une nouvelle zone à la place' }}
+      </p>
+
+      <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <button type="submit" class="submit-btn" [disabled]="!canSubmit">
+        Créer
+      </button>
+
+    </form>
+
+  </div>
+</div>
