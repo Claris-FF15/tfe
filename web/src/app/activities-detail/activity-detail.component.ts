@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule, Location } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { AccessLogService, AccessLogEntry } from '../services/access-log.service';
 
 @Component({
@@ -18,7 +18,7 @@ export class ActivityDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
+    private location: Location,
     private accessLogService: AccessLogService,
     private cdr: ChangeDetectorRef
   ) {}
@@ -49,6 +49,6 @@ export class ActivityDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/activities']);
+    this.location.back();
   }
 }

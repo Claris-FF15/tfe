@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
@@ -39,6 +39,7 @@ export class BadgeDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private location: Location,
     private badgeService: BadgeService,
     private userService: UserService,
     private zoneService: ZoneService,
@@ -314,6 +315,6 @@ export class BadgeDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/badges']);
+    this.location.back();
   }
 }
