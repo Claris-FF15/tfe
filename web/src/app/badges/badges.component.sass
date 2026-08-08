@@ -1,9 +1,5 @@
 .badges-container
   padding: 30px
-  background-color: rgba(255, 255, 255, 0.95)
-  border-radius: 10px
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15)
-  font-family: 'Segoe UI', Roboto, sans-serif
 
 .badges-header
   display: flex
@@ -13,26 +9,34 @@
 
   h2
     margin: 0
-    color: #1f497d
-    font-size: 1.8rem
-    font-weight: 600
+    color: #ffffff
+    font-size: 1.6rem
+    font-weight: 700
+    letter-spacing: 0.2px
+    font-family: 'IBM Plex Mono', monospace
 
 .add-btn
-  background-color: #1f497d
-  color: white
-  border: none
+  background-color: transparent
+  color: #3fd0c9
+  border: 1px solid rgba(63, 208, 201, 0.35)
   padding: 10px 18px
   border-radius: 6px
   font-weight: 600
+  font-family: 'IBM Plex Mono', monospace
+  font-size: 0.85rem
   cursor: pointer
-  transition: background-color 0.2s
+  transition: background-color 0.2s, border-color 0.2s
 
   &:hover
-    background-color: #163a63
+    background-color: rgba(63, 208, 201, 0.12)
+    border-color: #3fd0c9
 
 .grid-container
   height: 500px
   width: 100%
+  border-radius: 10px
+  overflow: hidden
+  border: 1px solid #1e2530
 
 .ag-grid
   height: 100%
