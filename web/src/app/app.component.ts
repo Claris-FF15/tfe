@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
 import { NavbarComponent } from './navbar/navbar.component';
 import { AuthService } from './services/auth.service';
 
@@ -7,6 +9,7 @@ import { AuthService } from './services/auth.service';
   selector: 'app-root',
   standalone: true,
   imports: [
+    CommonModule,
     RouterOutlet,
     NavbarComponent
   ],
@@ -14,7 +17,19 @@ import { AuthService } from './services/auth.service';
   styleUrls: ['./app.component.sass']
 })
 export class AppComponent implements OnInit {
-  constructor(private authService: AuthService) {}
+
+  showNavbar = true;
+
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe(event => {
+      this.showNavbar = !event.urlAfterRedirects.startsWith('/login');
+    });
+  }
 
   ngOnInit() {
     if (this.authService.getToken()) {
