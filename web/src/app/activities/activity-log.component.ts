@@ -9,6 +9,7 @@ interface ActivityRow {
   id: number;
   utilisateur: string;
   action: string;
+  porte: string;
   date: string;
   allowed: boolean;
 }
@@ -34,7 +35,8 @@ export class ActivityLogComponent implements OnInit {
   columnDefs: ColDef[] = [
     { field: 'id', headerName: 'ID', width: 80 },
     { field: 'utilisateur', headerName: 'Utilisateur', flex: 1 },
-    { field: 'action', headerName: 'Action', flex: 1.5 },
+    { field: 'action', headerName: 'Action', flex: 1 },
+    { field: 'porte', headerName: 'Porte', flex: 1 },
     { field: 'date', headerName: 'Date', flex: 1 }
   ];
 
@@ -72,7 +74,8 @@ export class ActivityLogComponent implements OnInit {
         const mapped: ActivityRow[] = logs.map(log => ({
           id: log.id,
           utilisateur: log.user ? `${log.user.first_name} ${log.user.last_name}` : 'Inconnu',
-          action: this.formatAction(log),
+          action: log.allowed ? 'Accès autorisé' : 'Accès refusé',
+          porte: log.door?.name ?? 'Porte inconnue',
           date: new Date(log.timestamp).toLocaleString('fr-FR'),
           allowed: log.allowed
         }));
@@ -82,12 +85,5 @@ export class ActivityLogComponent implements OnInit {
       },
       error: (err) => console.log('ERREUR:', err)
     });
-  }
-
-  private formatAction(log: any): string {
-    const doorName = log.door?.name ?? 'porte inconnue';
-    return log.allowed
-      ? `Accès autorisé - ${doorName}`
-      : `Accès refusé - ${doorName}`;
   }
 }
