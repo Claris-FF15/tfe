@@ -2,9 +2,15 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent, RowClickedEvent, themeQuartz, ICellRendererParams } from 'ag-grid-community';
 import { BadgeService, UserBadge } from '../services/badge.service';
+import { UserService, UserRow } from '../services/user.service';
+
+interface BadgeRow extends UserBadge {
+  user_name: string;
+}
 
 @Component({
   selector: 'app-badges',
@@ -36,8 +42,9 @@ export class BadgesComponent implements OnInit {
     wrapperBorder: false,
   });
 
-  rowData: UserBadge[] = [];
+  rowData: BadgeRow[] = [];
   private gridApi!: GridApi;
+  private avatarPalette = ['#3fd0c9', '#3a6ea5', '#f2a73b', '#9b7fd4'];
 
   columnDefs: ColDef[] = [
     {
@@ -57,8 +64,8 @@ export class BadgesComponent implements OnInit {
     {
       field: 'uid',
       headerName: 'ID Badge',
-      flex: 1.4,
-      minWidth: 180,
+      flex: 1.3,
+      minWidth: 170,
       cellRenderer: (p: any) => {
         return `
           <div style="display:flex;align-items:center;gap:8px;height:100%;color:#cfd8e0;font-family:'IBM Plex Mono',monospace;">
@@ -72,15 +79,30 @@ export class BadgesComponent implements OnInit {
       },
     },
     {
-      field: 'user_id',
-      headerName: 'ID Utilisateur',
-      flex: 1.2,
-      minWidth: 160,
-      valueFormatter: (p) => '#' + String(p.value).padStart(3, '0'),
-      cellStyle: {
-        fontFamily: "'IBM Plex Mono', monospace",
-        color: '#6e7c8c',
-        fontSize: '12.5px',
+      field: 'user_name',
+      headerName: 'Utilisateur',
+      flex: 1.6,
+      minWidth: 200,
+      cellRenderer: (p: any) => {
+        const hasUser = p.data.user_id != null;
+        if (!hasUser) {
+          return `<span style="color:#4a525c;font-style:italic;font-family:'IBM Plex Mono',monospace;font-size:12.5px;">Aucun utilisateur</span>`;
+        }
+        const initial = (p.value?.charAt(0) || '?').toUpperCase();
+        const color = this.getAvatarColor(p.value || '');
+        return `
+          <div style="display:flex;align-items:center;gap:10px;height:100%;font-family:'IBM Plex Mono',monospace;">
+            <div style="
+              width:26px;height:26px;min-width:26px;
+              border-radius:50%;
+              display:flex;align-items:center;justify-content:center;
+              font-size:11px;font-weight:700;
+              font-family:'IBM Plex Mono',monospace;
+              color:#0b0f14;background:${color};">
+              ${initial}
+            </div>
+            <span>${p.value}</span>
+          </div>`;
       },
     },
     {
@@ -156,6 +178,7 @@ export class BadgesComponent implements OnInit {
 
   constructor(
     private badgeService: BadgeService,
+    private userService: UserService,
     private router: Router,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
@@ -185,18 +208,40 @@ export class BadgesComponent implements OnInit {
   ngOnInit(): void {}
 
   toggleStatus(badge: UserBadge): void {
-    this.badgeService.updateBadge(badge.id, !badge.active).subscribe({
+    this.badgeService.updateBadge(badge.id, { active: !badge.active }).subscribe({
       next: () => this.loadBadges(),
       error: (err) => console.log('Erreur mise à jour statut:', err)
     });
   }
 
+  private getAvatarColor(name: string): string {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return this.avatarPalette[Math.abs(hash) % this.avatarPalette.length];
+  }
+
   private loadBadges(): void {
-    this.badgeService.getAllBadges().subscribe({
-      next: (badges) => {
-        const sorted = [...badges].sort((a, b) => a.id - b.id);  // <- tri croissant par ID
-        this.rowData = sorted;
-        this.gridApi.setGridOption('rowData', sorted);
+    forkJoin({
+      badges: this.badgeService.getAllBadges(),
+      users: this.userService.getAllUsers()
+    }).subscribe({
+      next: ({ badges, users }) => {
+        const userMap = new Map<number, UserRow>(users.map(u => [u.id, u]));
+
+        const mapped: BadgeRow[] = badges
+          .map(b => {
+            const user = b.user_id != null ? userMap.get(b.user_id) : undefined;
+            return {
+              ...b,
+              user_name: user ? `${user.first_name} ${user.last_name}` : 'Aucun utilisateur'
+            };
+          })
+          .sort((a, b) => a.id - b.id);
+
+        this.rowData = mapped;
+        this.gridApi.setGridOption('rowData', mapped);
       },
       error: (err) => console.log('ERREUR:', err)
     });

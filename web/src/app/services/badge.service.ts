@@ -5,15 +5,20 @@ import { Observable } from 'rxjs';
 export interface UserBadge {
   id: number;
   uid: string;
-  user_id: number;
+  user_id: number | null;
   active: boolean;
   last_activity: string | null;
 }
 
 export interface BadgeCreatePayload {
   uid: string;
-  user_id: number;
+  user_id: number | null;
   active: boolean;
+}
+
+export interface BadgeUpdatePayload {
+  active?: boolean;
+  user_id?: number | null;
 }
 
 export interface AccessLog {
@@ -57,7 +62,11 @@ export class BadgeService {
     return this.http.post<UserBadge>(this.badgesUrl, data);
   }
 
-  updateBadge(id: number, active: boolean): Observable<UserBadge> {
-    return this.http.put<UserBadge>(`${this.badgesUrl}/${id}`, { active });
+  updateBadge(id: number, data: BadgeUpdatePayload): Observable<UserBadge> {
+    return this.http.put<UserBadge>(`${this.badgesUrl}/${id}`, data);
+  }
+
+  deleteBadge(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.badgesUrl}/${id}`);
   }
 }

@@ -15,8 +15,13 @@
       <label>ID Badge (UID)</label>
       <input type="text" formControlName="uid" placeholder="Ex: BADGE042" />
 
-      <label>ID Utilisateur lié</label>
-      <input type="number" formControlName="user_id" />
+      <label>Utilisateur lié (optionnel)</label>
+      <select formControlName="user_id">
+        <option [ngValue]="null">Aucun utilisateur pour l'instant</option>
+        <option *ngFor="let user of users" [ngValue]="user.id">
+          {{ user.first_name }} {{ user.last_name }}
+        </option>
+      </select>
 
       <label>Statut</label>
       <select formControlName="active">

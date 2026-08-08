@@ -147,10 +147,27 @@ export class UserDetailComponent implements OnInit, OnDestroy {
       this.nameForm.value.first_name!,
       this.nameForm.value.last_name!
     ).subscribe({
-      next: (updated) => {
-        this.user = updated;
-        this.successMessage = 'Utilisateur mis à jour avec succès';
-        this.cdr.detectChanges();
+      next: (updatedName) => {
+        this.user = updatedName;
+
+        const newStatus = this.statusControl.value!;
+        if (newStatus === updatedName.active) {
+          this.successMessage = 'Utilisateur mis à jour avec succès';
+          this.cdr.detectChanges();
+          return;
+        }
+
+        this.userService.updateActive(this.user!.id, newStatus).subscribe({
+          next: (updatedStatus) => {
+            this.user = updatedStatus;
+            this.successMessage = 'Utilisateur mis à jour avec succès';
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            this.errorMessage = err.error?.detail ?? 'Erreur lors de la mise à jour du statut';
+            this.cdr.detectChanges();
+          }
+        });
       },
       error: (err) => {
         this.errorMessage = err.error?.detail ?? 'Erreur lors de la mise à jour';
@@ -175,27 +192,6 @@ export class UserDetailComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.errorMessage = err.error?.detail ?? 'Erreur lors de la mise à jour du rôle';
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  onUpdateStatus(): void {
-    if (!this.user) {
-      return;
-    }
-
-    this.userService.updateActive(
-      this.user.id,
-      this.statusControl.value!
-    ).subscribe({
-      next: (updated) => {
-        this.user = updated;
-        this.successMessage = 'Statut mis à jour avec succès';
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.errorMessage = err.error?.detail ?? 'Erreur lors de la mise à jour du statut';
         this.cdr.detectChanges();
       }
     });

@@ -5,80 +5,109 @@
 
 .detail-card
   width: 560px
-  background-color: rgba(255, 255, 255, 0.95)
+  background-color: #11161c
+  border: 1px solid #1e2530
   border-radius: 10px
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15)
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4)
   padding: 40px
-  font-family: 'Segoe UI', Roboto, sans-serif
+  font-family: 'IBM Plex Mono', monospace
 
   h2
-    color: #1f497d
-    margin-bottom: 25px
-    font-size: 1.5rem
+    color: #ffffff
+    margin: 0 0 25px
+    font-size: 1.3rem
+    font-weight: 700
+    letter-spacing: 0.02em
 
 .back-btn
   background: none
   border: none
-  color: #1f497d
+  color: #6e7c8c
   font-weight: 500
+  font-family: 'IBM Plex Mono', monospace
+  font-size: 0.85rem
   cursor: pointer
   margin-bottom: 20px
   padding: 0
+  display: inline-flex
+  align-items: center
+  gap: 6px
+  transition: color 0.2s
+
+  &:hover
+    color: #e7edf3
 
 .section
   margin-top: 25px
   padding-top: 20px
-  border-top: 1px solid #eee
+  border-top: 1px solid #1e2530
 
   h3
-    color: #1f497d
-    font-size: 1.05rem
+    color: #ffffff
+    font-size: 0.95rem
+    font-weight: 700
+    text-transform: uppercase
+    letter-spacing: 0.04em
     margin-bottom: 14px
-
-.user-row
-  padding: 8px 0
-  font-size: 0.9rem
-  color: #333
-
-.log-row
-  display: flex
-  justify-content: space-between
-  padding: 8px 10px
-  border-radius: 6px
-  margin-bottom: 6px
-  font-size: 0.85rem
-
-  &.log-allowed
-    background: rgba(46, 125, 50, 0.08)
-
-  &.log-denied
-    background: rgba(231, 76, 60, 0.08)
-
-.empty-note
-  color: #999
-  font-style: italic
-  font-size: 0.9rem
 
 .user-row
   display: flex
   justify-content: space-between
   align-items: center
-  padding: 8px 0
-  font-size: 0.9rem
-  color: #333
-
-.revoke-btn
-  background: rgba(231, 76, 60, 0.1)
-  color: #e74c3c
-  border: none
-  padding: 4px 12px
+  padding: 10px 12px
+  background: #0e1319
+  border: 1px solid #1e2530
   border-radius: 6px
-  font-size: 0.8rem
+  margin-bottom: 6px
+  font-size: 0.85rem
+  color: #e7edf3
+
+.log-row
+  display: flex
+  justify-content: space-between
+  padding: 10px 12px
+  border-radius: 6px
+  margin-bottom: 6px
+  font-size: 0.85rem
   cursor: pointer
-  transition: background-color 0.2s
+  transition: opacity 0.2s, border-color 0.2s
+  border: 1px solid transparent
+  font-family: 'IBM Plex Mono', monospace
+  color: #e7edf3
 
   &:hover
-    background: rgba(231, 76, 60, 0.2)
+    opacity: 0.8
+
+  &.log-allowed
+    background: rgba(63, 208, 201, 0.08)
+    border-color: rgba(63, 208, 201, 0.2)
+
+  &.log-denied
+    background: rgba(229, 72, 77, 0.08)
+    border-color: rgba(229, 72, 77, 0.2)
+
+.empty-note
+  color: #6e7c8c
+  font-style: italic
+  font-size: 0.85rem
+
+.revoke-btn
+  background: rgba(229, 72, 77, 0.1)
+  border: 1px solid rgba(229, 72, 77, 0.3)
+  color: #e5484d
+  padding: 5px 12px
+  border-radius: 6px
+  font-size: 0.75rem
+  font-weight: 600
+  font-family: 'IBM Plex Mono', monospace
+  text-transform: uppercase
+  letter-spacing: 0.03em
+  cursor: pointer
+  transition: background-color 0.2s, border-color 0.2s
+
+  &:hover
+    background: rgba(229, 72, 77, 0.2)
+    border-color: #e5484d
 
 .add-access-form
   display: flex
@@ -87,37 +116,59 @@
 
   select
     flex: 1
-    padding: 10px
-    border: 1px solid #c1c1c1
+    padding: 10px 12px
+    background-color: #0e1319
+    border: 1px solid #1e2530
     border-radius: 6px
-    font-size: 0.9rem
+    color: #e7edf3
+    font-family: 'IBM Plex Mono', monospace
+    font-size: 0.85rem
+
+    &:focus
+      outline: none
+      border-color: #3fd0c9
 
 .save-btn
   padding: 10px 18px
-  background-color: #1f497d
-  color: white
+  background-color: transparent
+  color: #3fd0c9
+  border: 1px solid rgba(63, 208, 201, 0.35)
   font-weight: 600
-  border: none
+  font-family: 'IBM Plex Mono', monospace
+  font-size: 0.85rem
   border-radius: 6px
   cursor: pointer
-  transition: background-color 0.2s
+  transition: background-color 0.2s, border-color 0.2s
+  white-space: nowrap
 
-  &:hover
-    background-color: #163a63
+  &:hover:not(:disabled)
+    background-color: rgba(63, 208, 201, 0.12)
+    border-color: #3fd0c9
 
   &:disabled
-    background-color: #999
+    background-color: transparent
+    color: #4a525c
+    border-color: #1e2530
     cursor: not-allowed
 
 .info-note
-  color: #1f497d
+  color: #f2a73b
   font-size: 0.8rem
   font-style: italic
   margin-top: 10px
+  padding: 10px 12px
+  background: rgba(242, 167, 59, 0.08)
+  border: 1px solid rgba(242, 167, 59, 0.25)
+  border-radius: 6px
 
-.log-row
-  cursor: pointer
-  transition: opacity 0.2s
+.success
+  color: #3fd0c9
+  font-size: 0.8rem
+  margin-top: 10px
+  font-family: 'IBM Plex Mono', monospace
 
-  &:hover
-    opacity: 0.75
+.error
+  color: #e5484d
+  font-size: 0.8rem
+  margin-top: 10px
+  font-family: 'IBM Plex Mono', monospace

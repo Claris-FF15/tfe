@@ -8,6 +8,11 @@ from models.badge import Badge
 class BadgeService:
     @staticmethod
     def create_badge(db: Session, data: BadgeCreate) -> Badge:
+        if data.user_id is not None:
+            existing = BadgeRepository.find_by_user_id(db, data.user_id)
+            if existing:
+                raise HTTPException(409, "Cet utilisateur a déjà un badge assigné")
+
         badge = Badge(**data.dict())
         return BadgeRepository.save(db, badge)
     
@@ -23,7 +28,21 @@ class BadgeService:
         badge = BadgeRepository.find_by_id(db, badge_id)
         if not badge:
             raise HTTPException(404, "Badge non trouvé")
-        return BadgeRepository.update(db, badge, data.active)
+
+        fields_set = data.model_fields_set
+        user_id_provided = "user_id" in fields_set
+
+        if user_id_provided and data.user_id is not None:
+            existing = BadgeRepository.find_by_user_id(db, data.user_id)
+            if existing and existing.id != badge.id:
+                raise HTTPException(409, "Cet utilisateur a déjà un badge assigné")
+
+        return BadgeRepository.update_fields(
+            db, badge,
+            active=data.active,
+            user_id=data.user_id,
+            user_id_provided=user_id_provided
+        )
 
     @staticmethod
     def delete_badge(db: Session, badge_id: int):

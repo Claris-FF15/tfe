@@ -20,15 +20,18 @@ class BadgeRepository:
         db.commit()
         db.refresh(badge)
         return badge
-    
+
     @staticmethod
-    def update(db: Session, badge: Badge, active: bool) -> Badge:
-        badge.active = active
+    def update_fields(db: Session, badge: Badge, active: bool | None, user_id: int | None, user_id_provided: bool) -> Badge:
+        if active is not None:
+            badge.active = active
+        if user_id_provided:
+            badge.user_id = user_id
         db.commit()
         db.refresh(badge)
         return badge
 
     @staticmethod
     def delete(db: Session, badge: Badge):
-        db.delete(badge)  
+        db.delete(badge)
         db.commit()

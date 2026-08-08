@@ -24,15 +24,43 @@
 
     <!-- Utilisateur lié -->
     <div class="section">
-      <h3>Utilisateur lié</h3>
-      <div class="user-link" *ngIf="linkedUser" (click)="goToUser()" role="button" tabindex="0">
+      <div class="section-title-row">
+        <h3>Utilisateur lié</h3>
+        <div class="title-actions">
+          <button type="button" class="link-btn danger" *ngIf="linkedUser && !showReassignForm" (click)="onRemoveUser()">
+            Retirer
+          </button>
+          <button type="button" class="link-btn" (click)="toggleReassignForm()">
+            {{ showReassignForm ? 'Annuler' : (hasNoUser ? 'Assigner' : 'Modifier') }}
+          </button>
+        </div>
+      </div>
+
+      <div class="user-link" *ngIf="linkedUser && !showReassignForm" (click)="goToUser()" role="button" tabindex="0">
         <div class="avatar">{{ linkedUser.first_name.charAt(0).toUpperCase() }}</div>
         <div class="user-info-text">
           <span class="user-name">{{ linkedUser.first_name }} {{ linkedUser.last_name }}</span>
           <span class="user-email">{{ linkedUser.email }}</span>
         </div>
       </div>
-      <p class="empty-note" *ngIf="!linkedUser">Chargement...</p>
+
+      <p class="empty-note" *ngIf="hasNoUser && !showReassignForm">Aucun utilisateur assigné à ce badge.</p>
+      <p class="empty-note" *ngIf="!hasNoUser && !linkedUser && !showReassignForm">Chargement...</p>
+
+      <form class="reassign-form" *ngIf="showReassignForm" [formGroup]="reassignForm" (ngSubmit)="onReassignUser()">
+        <select formControlName="user_id">
+          <option [ngValue]="null" disabled selected>Choisir un utilisateur...</option>
+          <option *ngFor="let user of availableUsersForReassign" [ngValue]="user.id">
+            {{ user.first_name }} {{ user.last_name }}
+          </option>
+        </select>
+        <button type="submit" class="save-btn" [disabled]="!reassignForm.value.user_id">
+          {{ hasNoUser ? 'Assigner' : 'Réassigner' }}
+        </button>
+      </form>
+      <p class="info-note" *ngIf="showReassignForm">
+        Seuls les utilisateurs sans badge existant sont proposés (1 badge par utilisateur).
+      </p>
     </div>
 
     <!-- Statut -->
@@ -48,7 +76,7 @@
     </div>
 
     <!-- Zones / portes accessibles avec gestion -->
-    <div class="section">
+    <div class="section" *ngIf="linkedUser">
       <h3>Zones et accès autorisés</h3>
       <div class="permissions-list" *ngIf="permissions.length > 0">
         <div class="permission-row" *ngFor="let perm of permissions">
@@ -79,6 +107,14 @@
       <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
     </div>
 
+    <div class="section" *ngIf="!linkedUser">
+      <h3>Zones et accès autorisés</h3>
+      <p class="empty-note">Assignez un utilisateur pour gérer ses accès.</p>
+
+      <div class="success" *ngIf="successMessage">{{ successMessage }}</div>
+      <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+    </div>
+
     <!-- Historique des activités -->
     <div class="section">
       <h3>Historique des activités</h3>
@@ -91,6 +127,23 @@
         </div>
       </div>
       <p class="empty-note" *ngIf="logs.length === 0">Aucune activité enregistrée.</p>
+    </div>
+
+    <!-- Suppression -->
+    <div class="section danger-zone">
+      <h3></h3>
+
+      <button type="button" class="delete-btn" *ngIf="!showDeleteConfirm" (click)="confirmDelete()">
+        Supprimer ce badge
+      </button>
+
+      <div class="delete-confirm" *ngIf="showDeleteConfirm">
+        <p>Cette action est irréversible. Confirmer la suppression du badge <strong>{{ badge.uid }}</strong> ?</p>
+        <div class="delete-actions">
+          <button type="button" class="cancel-btn" (click)="cancelDelete()">Annuler</button>
+          <button type="button" class="delete-btn-confirm" (click)="onDeleteBadge()">Supprimer définitivement</button>
+        </div>
+      </div>
     </div>
 
   </div>

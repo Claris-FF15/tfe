@@ -3,16 +3,17 @@ from datetime import datetime
 
 class BadgeCreate(BaseModel):
     uid: str
-    user_id: int
-    active: bool
+    user_id: int | None = None
+    active: bool = True
 
 class BadgeUpdate(BaseModel):
-    active: bool
+    active: bool | None = None
+    user_id: int | None = None
 
 class BadgeResponse(BaseModel):
     id: int
     uid: str
-    user_id: int
+    user_id: int | None
     active: bool
     last_activity: datetime | None = None
 

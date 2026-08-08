@@ -79,7 +79,7 @@
     text-transform: uppercase
     letter-spacing: 0.04em
 
-  input
+  input, select
     padding: 10px 12px
     margin-bottom: 15px
     background-color: #0e1319
@@ -94,10 +94,10 @@
       outline: none
       border-color: #3fd0c9
 
-    &[readonly]
-      background-color: #0b0f14
-      color: #6e7c8c
-      cursor: default
+  input[readonly]
+    background-color: #0b0f14
+    color: #6e7c8c
+    cursor: default
 
 .save-btn
   padding: 12px
@@ -250,56 +250,3 @@
   color: #6e7c8c
   font-size: 0.85rem
   font-style: italic
-
-.status-row
-  display: flex
-  align-items: center
-  gap: 10px
-  margin-bottom: 15px
-
-  select
-    flex: 1
-    padding: 10px 12px
-    background-color: #0e1319
-    border: 1px solid #1e2530
-    border-radius: 6px
-    color: #e7edf3
-    font-family: 'IBM Plex Mono', monospace
-    font-size: 0.9rem
-
-    &:focus
-      outline: none
-      border-color: #3fd0c9
-
-.status-value
-  font-weight: 600
-  padding: 4px 12px
-  border-radius: 999px
-  font-size: 0.75rem
-  text-transform: uppercase
-  letter-spacing: 0.04em
-
-  &.status-active
-    background: rgba(63, 208, 201, 0.12)
-    color: #3fd0c9
-
-  &.status-inactive
-    background: rgba(229, 72, 77, 0.14)
-    color: #e5484d
-
-.toggle-btn
-  padding: 10px 18px
-  background-color: transparent
-  color: #3fd0c9
-  border: 1px solid rgba(63, 208, 201, 0.35)
-  font-weight: 600
-  font-family: 'IBM Plex Mono', monospace
-  border-radius: 6px
-  font-size: 0.85rem
-  cursor: pointer
-  transition: background-color 0.2s, border-color 0.2s
-  white-space: nowrap
-
-  &:hover
-    background-color: rgba(63, 208, 201, 0.12)
-    border-color: #3fd0c9

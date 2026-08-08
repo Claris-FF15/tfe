@@ -5,12 +5,18 @@
   <div class="zone-block" *ngFor="let zone of zones">
     <div class="zone-header">
       <h3>{{ zone.name }}</h3>
-      <p class="zone-desc" *ngIf="zone.description">{{ zone.description }}</p>
     </div>
+    <p class="zone-desc" *ngIf="zone.description">{{ zone.description }}</p>
 
-    <div class="doors-list" *ngIf="zone.doors.length > 0">
-      <div class="door-row" *ngFor="let door of zone.doors" (click)="goToDoor(door.id)" role="button" tabindex="0">
-        <span class="door-name">{{ door.name }}</span>
+    <div class="doors-list" *ngIf="doorsFor(zone).length > 0">
+      <div class="door-row" *ngFor="let door of doorsFor(zone)" (click)="goToDoor(door.id)" role="button" tabindex="0">
+        <span class="door-name">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="5" y="11" width="14" height="9" rx="2"/>
+            <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+          </svg>
+          {{ door.name }}
+        </span>
         <span class="door-location">{{ door.location }}</span>
         <span class="door-status" [class.status-active]="door.active" [class.status-inactive]="!door.active">
           {{ door.active ? 'Actif' : 'Inactif' }}
@@ -18,7 +24,28 @@
       </div>
     </div>
 
-    <p class="empty-note" *ngIf="zone.doors.length === 0">Aucun accès dans cette zone.</p>
+    <p class="empty-note" *ngIf="doorsFor(zone).length === 0">Aucun accès dans cette zone.</p>
+  </div>
+
+  <div class="zone-block" *ngIf="unassignedDoors.length > 0">
+    <div class="zone-header">
+      <h3>Portes sans zone</h3>
+    </div>
+    <div class="doors-list">
+      <div class="door-row" *ngFor="let door of unassignedDoors" (click)="goToDoor(door.id)" role="button" tabindex="0">
+        <span class="door-name">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="5" y="11" width="14" height="9" rx="2"/>
+            <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+          </svg>
+          {{ door.name }}
+        </span>
+        <span class="door-location">{{ door.location }}</span>
+        <span class="door-status" [class.status-active]="door.active" [class.status-inactive]="!door.active">
+          {{ door.active ? 'Actif' : 'Inactif' }}
+        </span>
+      </div>
+    </div>
   </div>
 
   <p class="empty-note" *ngIf="!loading && zones.length === 0">Aucune zone configurée.</p>

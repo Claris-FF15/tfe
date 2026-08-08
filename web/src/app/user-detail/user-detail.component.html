@@ -25,15 +25,10 @@
       <input type="text" [value]="user.email" readonly />
 
       <label>Statut</label>
-      <div class="status-row" *ngIf="canEdit">
-        <select [formControl]="statusControl">
-          <option [ngValue]="true">Actif</option>
-          <option [ngValue]="false">Inactif</option>
-        </select>
-        <button type="button" class="toggle-btn" (click)="onUpdateStatus()">
-          Mettre à jour
-        </button>
-      </div>
+      <select *ngIf="canEdit" [formControl]="statusControl">
+        <option [ngValue]="true">Actif</option>
+        <option [ngValue]="false">Inactif</option>
+      </select>
 
       <input type="text" *ngIf="!canEdit" [value]="user.active ? 'Actif' : 'Inactif'" readonly />
 
