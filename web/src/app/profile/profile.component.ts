@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -29,7 +29,8 @@ export class ProfileComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private badgeService: BadgeService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
   ) {
     this.currentUser$ = this.authService.currentUser$;
 
@@ -46,20 +47,21 @@ export class ProfileComponent implements OnInit {
           first_name: user.first_name,
           last_name: user.last_name
         });
+        this.cdr.detectChanges();
       }
     });
 
     this.badgeService.getMyBadge().subscribe({
-    next: (badge) => {
-        console.log('BADGE REÇU:', badge);
+      next: (badge) => {
         this.badge = badge;
         this.badgeLoading = false;
-    },
-    error: (err) => {
-        console.log('BADGE ERREUR:', err);
+        this.cdr.detectChanges();
+      },
+      error: () => {
         this.badgeLoading = false;
         this.badgeError = true;
-    }
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -67,6 +69,7 @@ export class ProfileComponent implements OnInit {
     this.editMode = !this.editMode;
     this.successMessage = '';
     this.errorMessage = '';
+    this.cdr.detectChanges();
   }
 
   onSave(user: CurrentUser): void {
@@ -82,9 +85,11 @@ export class ProfileComponent implements OnInit {
       next: () => {
         this.successMessage = 'Profil mis à jour avec succès';
         this.editMode = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.errorMessage = err.error?.detail ?? 'Erreur lors de la mise à jour';
+        this.cdr.detectChanges();
       }
     });
   }

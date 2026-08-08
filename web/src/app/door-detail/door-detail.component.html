@@ -9,13 +9,31 @@
       <h3>Utilisateurs autorisés</h3>
       <div class="user-row" *ngFor="let perm of authorizedUsers">
         <span class="user-name">{{ perm.user.first_name }} {{ perm.user.last_name }}</span>
+        <button type="button" class="revoke-btn" (click)="onRevokeAccess(perm)">Retirer</button>
       </div>
       <p class="empty-note" *ngIf="authorizedUsers.length === 0">Aucun utilisateur autorisé.</p>
+
+      <form class="add-access-form" [formGroup]="accessForm" (ngSubmit)="onGrantAccess()">
+        <select formControlName="user_id">
+          <option [ngValue]="null" disabled selected>Ajouter un utilisateur...</option>
+          <option *ngFor="let user of availableUsers" [ngValue]="user.id">
+            {{ user.first_name }} {{ user.last_name }} ({{ user.role.name }})
+          </option>
+        </select>
+        <button type="submit" class="save-btn" [disabled]="!accessForm.value.user_id">Ajouter</button>
+      </form>
+
+      <p class="info-note" *ngIf="isServeurZone()">
+        Zone Serveur — réservée aux admins et responsables sécurité (vérifié côté serveur).
+      </p>
+
+      <div class="success" *ngIf="successMessage">{{ successMessage }}</div>
+      <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
     </div>
 
     <div class="section">
       <h3>Accès autorisés récents</h3>
-      <div class="log-row log-allowed" *ngFor="let log of allowedLogs">
+      <div class="log-row log-allowed" *ngFor="let log of allowedLogs" (click)="goToActivity(log.id)" role="button" tabindex="0">
         <span>{{ log.user ? (log.user.first_name + ' ' + log.user.last_name) : 'Inconnu' }}</span>
         <span>{{ log.timestamp | date:'dd/MM/yyyy HH:mm' }}</span>
       </div>
@@ -24,7 +42,7 @@
 
     <div class="section">
       <h3>Accès refusés récents</h3>
-      <div class="log-row log-denied" *ngFor="let log of deniedLogs">
+      <div class="log-row log-denied" *ngFor="let log of deniedLogs" (click)="goToActivity(log.id)" role="button" tabindex="0">
         <span>{{ log.user ? (log.user.first_name + ' ' + log.user.last_name) : 'Inconnu' }}</span>
         <span>{{ log.timestamp | date:'dd/MM/yyyy HH:mm' }}</span>
       </div>

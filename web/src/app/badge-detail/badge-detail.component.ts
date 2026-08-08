@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { BadgeService, UserBadge, AccessLog } from '../services/badge.service';
 import { UserService, UserRow, AccessPermission } from '../services/user.service';
+import { ZoneService, DoorInZone } from '../services/zone.service';
 
 @Component({
   selector: 'app-badge-detail',
@@ -18,23 +19,30 @@ export class BadgeDetailComponent implements OnInit {
   linkedUser: UserRow | null = null;
   permissions: AccessPermission[] = [];
   logs: AccessLog[] = [];
+  allDoors: DoorInZone[] = [];
 
   loading = true;
   errorMessage = '';
   successMessage = '';
 
   statusForm;
+  accessForm;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private badgeService: BadgeService,
     private userService: UserService,
+    private zoneService: ZoneService,
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef
   ) {
     this.statusForm = this.fb.group({
       active: [true]
+    });
+
+    this.accessForm = this.fb.group({
+      door_id: this.fb.control<number | null>(null)
     });
   }
 
@@ -63,13 +71,7 @@ export class BadgeDetailComponent implements OnInit {
           error: () => this.cdr.detectChanges()
         });
 
-        this.userService.getUserPermissions(badge.user_id).subscribe({
-          next: (permissions) => {
-            this.permissions = permissions;
-            this.cdr.detectChanges();
-          },
-          error: () => this.cdr.detectChanges()
-        });
+        this.loadPermissions(badge.user_id);
 
         this.badgeService.getBadgeLogs(badge.id).subscribe({
           next: (logs) => {
@@ -87,7 +89,34 @@ export class BadgeDetailComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+
+    this.zoneService.getAllDoors().subscribe({
+      next: (doors) => {
+        this.allDoors = doors;
+        this.cdr.detectChanges();
+      },
+      error: () => this.cdr.detectChanges()
+    });
   }
+
+  private loadPermissions(userId: number): void {
+    this.userService.getUserPermissions(userId).subscribe({
+      next: (permissions) => {
+        this.permissions = permissions;
+        this.cdr.detectChanges();
+      },
+      error: () => this.cdr.detectChanges()
+    });
+  }
+
+  get availableDoors(): DoorInZone[] {
+    const grantedIds = this.permissions.map(p => p.door.id);
+    return this.allDoors.filter(d => !grantedIds.includes(d.id));
+  }
+
+    isServeurZone(door: DoorInZone): boolean {
+    return door.zone?.name.toLowerCase() === 'salle serveur';
+    }
 
   onToggleStatus(): void {
     if (!this.badge) {
@@ -104,6 +133,43 @@ export class BadgeDetailComponent implements OnInit {
       },
       error: (err) => {
         this.errorMessage = err.error?.detail ?? 'Erreur lors de la mise à jour';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onGrantAccess(): void {
+    if (!this.linkedUser || !this.accessForm.value.door_id) {
+      return;
+    }
+
+    this.userService.grantPermission(this.linkedUser.id, this.accessForm.value.door_id).subscribe({
+      next: () => {
+        this.successMessage = 'Accès accordé avec succès';
+        this.accessForm.reset();
+        this.loadPermissions(this.linkedUser!.id);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.detail ?? 'Erreur lors de l\'ajout de l\'accès';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onRevokeAccess(permission: AccessPermission): void {
+    if (!this.linkedUser) {
+      return;
+    }
+
+    this.userService.revokePermission(this.linkedUser.id, permission.id).subscribe({
+      next: () => {
+        this.successMessage = 'Accès retiré avec succès';
+        this.loadPermissions(this.linkedUser!.id);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.detail ?? 'Erreur lors du retrait de l\'accès';
         this.cdr.detectChanges();
       }
     });

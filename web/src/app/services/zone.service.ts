@@ -2,18 +2,18 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface Zone {
+  id: number;
+  name: string;
+  description: string | null;
+}
+
 export interface DoorInZone {
   id: number;
   name: string;
   location: string;
   active: boolean;
-}
-
-export interface Zone {
-  id: number;
-  name: string;
-  description: string | null;
-  doors: DoorInZone[];
+  zone: Zone | null;
 }
 
 export interface DoorAuthorizedUser {
@@ -47,6 +47,10 @@ export class ZoneService {
 
   getZoneById(id: number): Observable<Zone> {
     return this.http.get<Zone>(`${this.zonesUrl}/${id}`);
+  }
+
+  getAllDoors(): Observable<DoorInZone[]> {
+    return this.http.get<DoorInZone[]>(this.doorsUrl);
   }
 
   getDoorAuthorizedUsers(doorId: number): Observable<DoorAuthorizedUser[]> {

@@ -8,6 +8,8 @@ from schemas.user import UserCreate, UserUpdateName, UserUpdateRole, UserRespons
 from schemas.access_permission import AccessPermissionResponse
 from dependencies.auth import get_current_user, require_admin, require_admin_or_security
 from models.user import User
+from services.access_permission_service import AccessPermissionService
+from schemas.access_permission import AccessPermissionCreate
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -89,3 +91,22 @@ def update_active(
     current_user: User = Depends(require_admin_or_security),
 ):
     return UserService.update_active(db, user_id, data.active, current_user)
+
+@router.post("/{user_id}/permissions", response_model=AccessPermissionResponse)
+def grant_permission(
+    user_id: int,
+    data: AccessPermissionCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_security),
+):
+    return AccessPermissionService.grant_access(db, user_id, data.door_id)
+
+
+@router.delete("/{user_id}/permissions/{permission_id}", status_code=status.HTTP_204_NO_CONTENT)
+def revoke_permission(
+    user_id: int,
+    permission_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_security),
+):
+    AccessPermissionService.revoke_access(db, permission_id)

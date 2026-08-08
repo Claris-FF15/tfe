@@ -34,11 +34,9 @@
         </select>
         <button type="submit" class="save-btn">Mettre à jour</button>
       </form>
-      <div class="success" *ngIf="successMessage">{{ successMessage }}</div>
-      <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
     </div>
 
-    <!-- Zones / portes accessibles -->
+    <!-- Zones / portes accessibles avec gestion -->
     <div class="section">
       <h3>Zones et accès autorisés</h3>
       <div class="permissions-list" *ngIf="permissions.length > 0">
@@ -46,14 +44,33 @@
           <span class="door-name">{{ perm.door.name }}</span>
           <span class="door-location">{{ perm.door.location }}</span>
           <span class="zone-tag" *ngIf="perm.door.zone">{{ perm.door.zone.name }}</span>
+          <button type="button" class="revoke-btn" (click)="onRevokeAccess(perm)">Retirer</button>
         </div>
       </div>
       <p class="empty-note" *ngIf="permissions.length === 0">Aucun accès configuré.</p>
+
+      <form class="add-access-form" [formGroup]="accessForm" (ngSubmit)="onGrantAccess()">
+        <select formControlName="door_id">
+          <option [ngValue]="null" disabled selected>Ajouter un accès...</option>
+          <option
+            *ngFor="let door of availableDoors"
+            [ngValue]="door.id"
+            [disabled]="isServeurZone(door) && linkedUser?.role?.name?.toLowerCase() !== 'admin' && linkedUser?.role?.name?.toLowerCase() !== 'responsable_securite'"
+          >
+            {{ door.name }} ({{ door.zone?.name ?? 'Sans zone' }})
+            {{ isServeurZone(door) && linkedUser?.role?.name?.toLowerCase() !== 'admin' && linkedUser?.role?.name?.toLowerCase() !== 'responsable_securite' ? '- Réservé admin/sécurité' : '' }}
+          </option>
+        </select>
+        <button type="submit" class="save-btn" [disabled]="!accessForm.value.door_id">Ajouter</button>
+      </form>
+
+      <div class="success" *ngIf="successMessage">{{ successMessage }}</div>
+      <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
     </div>
 
-    <!-- Dernière activité -->
+    <!-- Historique des activités -->
     <div class="section">
-      <h3>Dernière activité</h3>
+      <h3>Historique des activités</h3>
       <div class="logs-list" *ngIf="logs.length > 0">
         <div class="log-row" *ngFor="let log of logs">
           <span class="log-time">{{ log.timestamp | date:'dd/MM/yyyy HH:mm' }}</span>

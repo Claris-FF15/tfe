@@ -3,6 +3,10 @@ from datetime import datetime
 from schemas.door import DoorResponse
 
 
+class AccessPermissionCreate(BaseModel):
+    door_id: int
+
+
 class AccessPermissionResponse(BaseModel):
     id: int
     door: DoorResponse

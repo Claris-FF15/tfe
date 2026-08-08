@@ -85,4 +85,12 @@ export class UserService {
   updateActive(id: number, active: boolean): Observable<UserRow> {
     return this.http.put<UserRow>(`${this.usersUrl}/${id}/active`, { active });
   }
+
+  grantPermission(userId: number, doorId: number): Observable<AccessPermission> {
+    return this.http.post<AccessPermission>(`${this.usersUrl}/${userId}/permissions`, { door_id: doorId });
+  }
+
+  revokePermission(userId: number, permissionId: number): Observable<void> {
+    return this.http.delete<void>(`${this.usersUrl}/${userId}/permissions/${permissionId}`);
+  }
 }
