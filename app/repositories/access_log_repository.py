@@ -19,6 +19,13 @@ class AccessLogRepository:
         )
 
     @staticmethod
+    def find_by_door_id(db: Session, door_id: int, limit: int = 50, allowed: bool | None = None) -> list[AccessLog]:
+        query = db.query(AccessLog).filter(AccessLog.door_id == door_id)
+        if allowed is not None:
+            query = query.filter(AccessLog.allowed == allowed)
+        return query.order_by(AccessLog.timestamp.desc()).limit(limit).all()
+
+    @staticmethod
     def find_all(db: Session, limit: int = 100, allowed: bool | None = None) -> list[AccessLog]:
         query = db.query(AccessLog)
         if allowed is not None:

@@ -6,6 +6,7 @@ from routers.badge_router import router as badge_router
 from routers.door_router import router as door_router
 from routers.auth_router import router as auth_router
 from routers.access_log_router import router as access_log_router
+from routers.zone_router import router as zone_router
 
 from db.database import Base, engine
 
@@ -40,3 +41,4 @@ app.include_router(badge_router)
 app.include_router(door_router)
 app.include_router(auth_router)
 app.include_router(access_log_router)
+app.include_router(zone_router)

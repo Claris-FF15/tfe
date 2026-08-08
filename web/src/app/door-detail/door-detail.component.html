@@ -1,0 +1,35 @@
+<div class="detail-page">
+  <div class="detail-card">
+
+    <button class="back-btn" (click)="goBack()">&#8592; Retour</button>
+
+    <h2>Détail de l'accès</h2>
+
+    <div class="section">
+      <h3>Utilisateurs autorisés</h3>
+      <div class="user-row" *ngFor="let perm of authorizedUsers">
+        <span class="user-name">{{ perm.user.first_name }} {{ perm.user.last_name }}</span>
+      </div>
+      <p class="empty-note" *ngIf="authorizedUsers.length === 0">Aucun utilisateur autorisé.</p>
+    </div>
+
+    <div class="section">
+      <h3>Accès autorisés récents</h3>
+      <div class="log-row log-allowed" *ngFor="let log of allowedLogs">
+        <span>{{ log.user ? (log.user.first_name + ' ' + log.user.last_name) : 'Inconnu' }}</span>
+        <span>{{ log.timestamp | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+      <p class="empty-note" *ngIf="allowedLogs.length === 0">Aucun accès autorisé enregistré.</p>
+    </div>
+
+    <div class="section">
+      <h3>Accès refusés récents</h3>
+      <div class="log-row log-denied" *ngFor="let log of deniedLogs">
+        <span>{{ log.user ? (log.user.first_name + ' ' + log.user.last_name) : 'Inconnu' }}</span>
+        <span>{{ log.timestamp | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+      <p class="empty-note" *ngIf="deniedLogs.length === 0">Aucun accès refusé enregistré.</p>
+    </div>
+
+  </div>
+</div>

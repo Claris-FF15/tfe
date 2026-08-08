@@ -1,0 +1,26 @@
+<div class="zones-container">
+
+  <h2>Zones et accès</h2>
+
+  <div class="zone-block" *ngFor="let zone of zones">
+    <div class="zone-header">
+      <h3>{{ zone.name }}</h3>
+      <p class="zone-desc" *ngIf="zone.description">{{ zone.description }}</p>
+    </div>
+
+    <div class="doors-list" *ngIf="zone.doors.length > 0">
+      <div class="door-row" *ngFor="let door of zone.doors" (click)="goToDoor(door.id)" role="button" tabindex="0">
+        <span class="door-name">{{ door.name }}</span>
+        <span class="door-location">{{ door.location }}</span>
+        <span class="door-status" [class.status-active]="door.active" [class.status-inactive]="!door.active">
+          {{ door.active ? 'Actif' : 'Inactif' }}
+        </span>
+      </div>
+    </div>
+
+    <p class="empty-note" *ngIf="zone.doors.length === 0">Aucun accès dans cette zone.</p>
+  </div>
+
+  <p class="empty-note" *ngIf="!loading && zones.length === 0">Aucune zone configurée.</p>
+
+</div>

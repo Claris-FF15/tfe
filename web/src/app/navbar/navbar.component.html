@@ -30,6 +30,11 @@
       <span class="icon">&#127991;</span>
       <span class="label" *ngIf="!collapsed">Badges</span>
     </a>
+
+  <a routerLink="/zones" routerLinkActive="active" [title]="collapsed ? 'Zones' : ''">
+    <span class="icon">&#128274;</span>
+    <span class="label" *ngIf="!collapsed">Zones</span>
+  </a>
   </div>
 
   <div class="navbar-footer">
