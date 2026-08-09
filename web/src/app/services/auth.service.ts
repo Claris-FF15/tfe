@@ -85,4 +85,11 @@ export class AuthService {
       take(1)
     );
   }
+
+  changePassword(userId: number, currentPassword: string, newPassword: string): Observable<void> {
+  return this.http.put<void>(`${this.usersUrl}/${userId}/password`, {
+    current_password: currentPassword,
+    new_password: newPassword
+  });
+}
 }

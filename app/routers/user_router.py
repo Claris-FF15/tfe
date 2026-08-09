@@ -4,7 +4,7 @@ from db.database import get_db
 from services.user_service import UserService
 from repositories.user_repository import UserRepository
 from repositories.access_permission_repository import AccessPermissionRepository
-from schemas.user import UserCreate, UserUpdateName, UserUpdateRole, UserResponse, UserUpdateActive
+from schemas.user import UserCreate, UserUpdateName, UserUpdateRole, UserResponse, UserUpdateActive, UserChangePassword
 from schemas.access_permission import AccessPermissionResponse
 from dependencies.auth import get_current_user, require_admin, require_admin_or_security
 from models.user import User
@@ -110,3 +110,12 @@ def revoke_permission(
     current_user: User = Depends(require_admin_or_security),
 ):
     AccessPermissionService.revoke_access(db, permission_id)
+
+@router.put("/{user_id}/password", status_code=status.HTTP_204_NO_CONTENT)
+def change_password(
+    user_id: int,
+    data: UserChangePassword,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    UserService.change_password(db, user_id, data, current_user)

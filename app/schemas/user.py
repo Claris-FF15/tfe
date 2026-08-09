@@ -49,3 +49,7 @@ class TokenResponse(BaseModel):
 
 class UserUpdateActive(BaseModel):
     active: bool
+
+class UserChangePassword(BaseModel):
+    current_password: str
+    new_password: str

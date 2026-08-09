@@ -24,7 +24,12 @@ export class ProfileComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
 
+  showPasswordForm = false;
+  passwordSuccess = '';
+  passwordError = '';
+
   nameForm;
+  passwordForm;
 
   constructor(
     private authService: AuthService,
@@ -37,6 +42,12 @@ export class ProfileComponent implements OnInit {
     this.nameForm = this.fb.group({
       first_name: ['', Validators.required],
       last_name: ['', Validators.required]
+    });
+
+    this.passwordForm = this.fb.group({
+      current_password: ['', Validators.required],
+      new_password: ['', [Validators.required, Validators.minLength(6)]],
+      confirm_password: ['', Validators.required]
     });
   }
 
@@ -72,6 +83,14 @@ export class ProfileComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  togglePasswordForm(): void {
+    this.showPasswordForm = !this.showPasswordForm;
+    this.passwordForm.reset();
+    this.passwordSuccess = '';
+    this.passwordError = '';
+    this.cdr.detectChanges();
+  }
+
   onSave(user: CurrentUser): void {
     if (this.nameForm.invalid) {
       return;
@@ -89,6 +108,32 @@ export class ProfileComponent implements OnInit {
       },
       error: (err) => {
         this.errorMessage = err.error?.detail ?? 'Erreur lors de la mise à jour';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onChangePassword(user: CurrentUser): void {
+    if (this.passwordForm.invalid) {
+      return;
+    }
+
+    const { current_password, new_password, confirm_password } = this.passwordForm.value;
+
+    if (new_password !== confirm_password) {
+      this.passwordError = 'Les mots de passe ne correspondent pas';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.authService.changePassword(user.id, current_password!, new_password!).subscribe({
+      next: () => {
+        this.passwordSuccess = 'Mot de passe modifié avec succès';
+        this.passwordForm.reset();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.passwordError = err.error?.detail ?? 'Erreur lors du changement de mot de passe';
         this.cdr.detectChanges();
       }
     });

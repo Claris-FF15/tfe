@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from models.user import User
 from repositories.user_repository import UserRepository
-from schemas.user import UserCreate, UserUpdateName, UserUpdateRole, LoginRequest
+from schemas.user import UserCreate, UserUpdateName, UserUpdateRole, LoginRequest, UserChangePassword
 from services.security import hash_password, verify_password, create_access_token
 from services.badge_service import BadgeService
 
@@ -157,3 +157,17 @@ class UserService:
         updated = UserRepository.save(db, user)
         BadgeService.deactivate_badge_for_user(db, user_id)
         return updated
+
+    @staticmethod
+    def change_password(db: Session, user_id: int, data: UserChangePassword, current_user: User) -> None:
+        if current_user.id != user_id:
+            raise HTTPException(403, "Vous ne pouvez modifier que votre propre mot de passe")
+
+        if not verify_password(data.current_password, current_user.password):
+            raise HTTPException(403, "Mot de passe actuel incorrect")
+
+        if len(data.new_password) < 6:
+            raise HTTPException(400, "Le nouveau mot de passe doit contenir au moins 6 caractères")
+
+        current_user.password = hash_password(data.new_password)
+        UserRepository.save(db, current_user)

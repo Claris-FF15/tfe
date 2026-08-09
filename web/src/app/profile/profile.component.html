@@ -80,5 +80,33 @@
       </div>
     </div>
 
+    <!-- Section Mot de passe -->
+    <div class="password-section">
+      <div class="section-title-row">
+        <h3>Mot de passe</h3>
+        <button type="button" class="link-btn" (click)="togglePasswordForm()">
+          {{ showPasswordForm ? 'Annuler' : 'Modifier' }}
+        </button>
+      </div>
+
+      <form *ngIf="showPasswordForm" [formGroup]="passwordForm" (ngSubmit)="onChangePassword(user)" autocomplete="off">
+        <label>Mot de passe actuel</label>
+        <input type="password" formControlName="current_password" autocomplete="current-password" />
+
+        <label>Nouveau mot de passe</label>
+        <input type="password" formControlName="new_password" autocomplete="new-password" />
+
+        <label>Confirmer le nouveau mot de passe</label>
+        <input type="password" formControlName="confirm_password" autocomplete="new-password" />
+
+        <div class="success" *ngIf="passwordSuccess">{{ passwordSuccess }}</div>
+        <div class="error" *ngIf="passwordError">{{ passwordError }}</div>
+
+        <button type="submit" class="save-btn" [disabled]="passwordForm.invalid">
+          Changer le mot de passe
+        </button>
+      </form>
+    </div>
+
   </div>
 </div>
