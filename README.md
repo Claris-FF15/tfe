@@ -1,6 +1,6 @@
 # BadgeApp
 
-Système de gestion des accès et badges pour la sécurité d'entreprise — TFE. Version 1 de  l'application.
+Système de gestion des accès et badges pour la sécurité d'entreprise — TFE.
 
 BadgeApp permet de gérer les utilisateurs, les badges RFID, les zones/portes d'un bâtiment, et de tracer en temps réel les tentatives d'accès (autorisées ou refusées). Le système détecte automatiquement les comportements suspects (accès refusés répétés) et désactive le compte concerné.
 
@@ -60,6 +60,38 @@ cd tools
 docker compose up --build
 ```
 
+## Simulateur Arduino + RFID (démo sans hardware)
+
+Le dossier `tools/rfid-simulator/` contient une page web (`index.html`) qui simule un lecteur RFID Arduino sans matériel physique. Elle permet de démontrer le fonctionnement complet du contrôle d'accès : scan d'un badge, vérification des permissions, autorisation ou refus, et déclenchement de la désactivation automatique après 3 refus.
+
+**Utilisation**
+
+1. Lancer un serveur statique local depuis le dossier du simulateur (nécessaire pour éviter les soucis CORS liés aux pages ouvertes en `file://`)
+
+```bash
+cd tools/rfid-simulator
+python3 -m http.server 5500
+```
+
+2. Ouvrir dans le navigateur
+
+```
+http://localhost:5500/
+```
+
+3. Autoriser cette origine dans la configuration CORS du backend (`app/main.py`), si ce n'est pas déjà fait
+
+```python
+allow_origins=[
+    "http://localhost:4200",
+    "http://localhost:5500",
+]
+```
+
+4. Glisser un badge sur le module RFID virtuel (ou cliquer/appuyer sur Entrée) pour simuler un scan. La page envoie une vraie requête `POST /access-logs` à l'API, et affiche le résultat réel (autorisé/refusé) sur l'écran LCD virtuel.
+
+Le simulateur est préconfiguré avec des badges cohérents avec les données de démonstration (`BADGE001`, `BADGE002`, `BADGE123`) et un champ pour choisir l'ID de la porte testée.
+
 ## Accès
 
 | Service | URL |
@@ -92,7 +124,9 @@ BadgeApp/
 │       ├── activities/
 │       └── services/
 └── tools/                  # Outils d'infrastructure
-    └── docker-compose.yml
+    ├── docker-compose.yml
+    └── rfid-simulator/       # Simulateur Arduino + RFID (démo sans hardware)
+        └── index.html
 ```
 
 ## Rôles et permissions

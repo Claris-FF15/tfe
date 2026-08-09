@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulateur Arduino + RFID</title>
+<title>BadgeApp — Simulateur Arduino + RFID</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
@@ -15,9 +15,9 @@
     --text-primary:#E4E9ED;
     --text-dim:#6B7680;
     --text-faint:#454E56;
-    --cyan:#3DDBD9;
+    --cyan:#3fd0c9;
     --green:#3FCF6E;
-    --red:#FF5C5C;
+    --red:#e5484d;
     --amber:#F2B84B;
   }
 
@@ -38,6 +38,7 @@
   header{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
   .dot{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);}
   h1{font-size:19px;font-weight:600;letter-spacing:.02em;margin:0;}
+  .badge-brand{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--cyan);border:1px solid rgba(63,208,201,.35);background:rgba(63,208,201,.1);padding:3px 8px;border-radius:999px;letter-spacing:.05em;text-transform:uppercase;}
   .sub{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text-dim);margin:2px 0 16px;line-height:1.6;max-width:720px;}
   .sub b{color:var(--text-dim);font-weight:600;}
 
@@ -53,6 +54,7 @@
     background:var(--bg-panel-raised);border:1px solid var(--line);color:var(--text-primary);
     font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border-radius:4px;width:220px;
   }
+  .field input.narrow{width:90px;}
   button{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12px;border-radius:5px;border:1px solid var(--line);cursor:pointer;transition:border-color .15s, background .15s, color .15s;}
   .btn-ghost{background:transparent;color:var(--text-dim);padding:8px 12px;}
   .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
@@ -125,6 +127,7 @@
   .log-empty{color:var(--text-faint);font-style:italic;}
 
   .footnote{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-faint);margin-top:14px;line-height:1.6;}
+  .footnote code{color:var(--text-dim);}
 </style>
 </head>
 <body>
@@ -132,12 +135,13 @@
   <header>
     <span class="dot"></span>
     <h1>Simulateur Arduino + RFID</h1>
+    <span class="badge-brand">BadgeApp Demo</span>
   </header>
-  <p class="sub">Arduino relié à un lecteur RFID et un écran LCD, entièrement virtuels. Glisse un badge sur le module RFID (ou clique dessus / valide au clavier) pour simuler un passage — une vraie requête HTTP part vers ton API, et l'écran affiche l'accès autorisé ou refusé. <b>Aucune installation, aucun hardware requis.</b></p>
+  <p class="sub">Arduino relié à un lecteur RFID et un écran LCD, entièrement virtuels. Glisse un badge sur le module RFID (ou clique dessus / valide au clavier) pour simuler un passage — une vraie requête part vers l'API BadgeApp, qui vérifie le badge et la permission d'accès à la porte, comme le ferait le vrai matériel. <b>Aucune installation, aucun hardware requis.</b></p>
 
   <div class="config-strip">
-    <div class="field"><label for="apiUrl">Endpoint API</label><input type="text" id="apiUrl" value="http://localhost:8000/api/v1/scans"></div>
-    <div class="field"><label for="readerId">Lecteur</label><input type="text" id="readerId" value="reader-01" style="width:110px;"></div>
+    <div class="field"><label for="apiUrl">Endpoint API</label><input type="text" id="apiUrl" value="http://localhost:8000/access-logs" style="width:260px;"></div>
+    <div class="field"><label for="doorId">ID Porte</label><input type="text" id="doorId" value="1" class="narrow"></div>
     <button class="btn-ghost" id="testBtn">Tester la connexion</button>
     <div class="status-row"><span class="status-led" id="connLed"></span><span id="connText">Non testé</span></div>
   </div>
@@ -188,8 +192,8 @@
       <p class="drag-hint">Glisse une carte sur le module RFID, ou clique / appuie sur Entrée pour la scanner directement.</p>
       <div id="badgeList"></div>
       <div class="add-form">
-        <input type="text" id="newLabel" placeholder="Nom (ex : Alice)">
-        <input type="text" id="newUid" placeholder="UID (auto si vide)">
+        <input type="text" id="newLabel" placeholder="Nom (ex : Clarisse)">
+        <input type="text" id="newUid" placeholder="UID (ex : BADGE004)">
         <button class="add-btn" id="addBtn">+ Ajouter un badge</button>
       </div>
     </div>
@@ -200,22 +204,20 @@
     <div class="log" id="log"><div class="log-empty">En attente du premier scan…</div></div>
   </div>
 
-  <p class="footnote">Payload envoyé : { reader_id, badge_uid, timestamp }. Si ton backend attend d'autres noms de champs, ajuste sendScan() / tapBadge() directement dans ce fichier (HTML/JS brut).<br>⚠️ Si l'API tourne sur un autre domaine, active CORS côté serveur pour l'origine de cette page (ou "*" en démo).</p>
+  <p class="footnote">Payload envoyé à <code>POST /access-logs</code> : <code>{ badge_uid, door_id }</code>. La réponse attendue contient <code>allowed</code> (booléen), <code>reason</code>, <code>user</code> et <code>door</code>.<br>
+  ⚠️ <code>GET /doors</code> est protégé par authentification côté API — ce simulateur n'a pas de session connectée, donc l'ID de porte se saisit manuellement ci-dessus (ex : 1 = Porte principale, 2 = Serveur — adapte selon ta base).<br>
+  ⚠️ Si cette page est ouverte en fichier local (<code>file://</code>) ou servie sur un port différent de <code>localhost:4200</code>, vérifie que la configuration CORS du backend autorise son origine.</p>
 </div>
 
 <script>
 const NS = 'http://www.w3.org/2000/svg';
 
 let badges = [
-  {label:'Alice Martin', uid:'04A3B2C1'},
-  {label:'Badge perdu', uid:'FFDEAD00'},
+  {label:'Admin test', uid:'BADGE001'},
+  {label:'Clarisse User', uid:'BADGE002'},
+  {label:'Badge test (inactif)', uid:'BADGE123'},
 ];
 
-function randomUid(){
-  const bytes = [];
-  for(let i=0;i<4;i++) bytes.push(Math.floor(Math.random()*256).toString(16).padStart(2,'0').toUpperCase());
-  return bytes.join('');
-}
 function escapeHtml(s){
   return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -225,7 +227,6 @@ function drawWires(fromPts, toPts, colors, group){
   fromPts.forEach((p, i) => {
     const q = toPts[i % toPts.length];
     const c = colors[i % colors.length];
-    const midY = (p.y + q.y) / 2;
     const path = document.createElementNS(NS, 'path');
     path.setAttribute('d', `M ${p.x} ${p.y} C ${p.x} ${p.y + (q.y-p.y)*0.5}, ${q.x} ${q.y - (q.y-p.y)*0.5}, ${q.x} ${q.y}`);
     path.setAttribute('fill', 'none');
@@ -255,7 +256,7 @@ function buildWires(){
   drawWires(arduinoBottom, lcdTop, lcdColors, group);
 }
 
-/* ---------- dropzone (mapped onto RFID module area of the viewBox) ---------- */
+/* ---------- dropzone ---------- */
 function positionDropzone(){
   const scene = document.getElementById('scene');
   const wrap = document.getElementById('sceneWrap');
@@ -264,7 +265,6 @@ function positionDropzone(){
   const rect = scene.getBoundingClientRect();
   const wrapRect = wrap.getBoundingClientRect();
   const scale = rect.width / vb.width;
-  // RFID module bounding box in viewBox units, with a little padding
   const bx = 550, by = 25, bw = 170, bh = 180;
   zone.style.left = (rect.left - wrapRect.left + bx*scale) + 'px';
   zone.style.top = (rect.top - wrapRect.top + by*scale) + 'px';
@@ -360,7 +360,7 @@ document.getElementById('addBtn').addEventListener('click', ()=>{
   const labelEl = document.getElementById('newLabel');
   const uidEl = document.getElementById('newUid');
   const label = labelEl.value.trim() || 'Badge sans nom';
-  const uid = uidEl.value.trim().toUpperCase() || randomUid();
+  const uid = uidEl.value.trim().toUpperCase() || ('BADGE' + Math.floor(Math.random()*900+100));
   badges.push({label, uid});
   labelEl.value=''; uidEl.value='';
   renderBadges();
@@ -393,7 +393,7 @@ async function tapBadge(badge){
   if(scanning) return;
   scanning = true;
   const apiUrl = document.getElementById('apiUrl').value.trim();
-  const readerId = document.getElementById('readerId').value.trim() || 'reader-01';
+  const doorId = parseInt(document.getElementById('doorId').value.trim(), 10) || 1;
   const led = document.getElementById('arduinoLed');
 
   document.getElementById('ring1').classList.remove('active');
@@ -404,38 +404,51 @@ async function tapBadge(badge){
   led.setAttribute('fill', '#F2B84B');
   setLcd('#4a3a12', 'LECTURE...', badge.uid, '#F2B84B', '#c99a3a');
 
-  const payload = { reader_id: readerId, badge_uid: badge.uid, timestamp: new Date().toISOString() };
+  const payload = { badge_uid: badge.uid, door_id: doorId };
   logEvent('SCAN', 'req', [JSON.stringify(payload)]);
 
-  let granted = null, statusLine = '', bodyText = '';
+  let allowed = false, statusLine = '', displayLine2 = '';
   try{
     const res = await fetch(apiUrl, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify(payload)
     });
-    bodyText = await res.text();
+    const bodyText = await res.text();
     let parsed = null;
     try{ parsed = JSON.parse(bodyText); }catch(e){}
-    if(parsed && typeof parsed === 'object'){
-      const flag = parsed.access_granted ?? parsed.granted ?? parsed.authorized ?? parsed.success;
-      if(typeof flag === 'boolean') granted = flag;
-    }
-    if(granted === null) granted = res.ok;
+
     statusLine = `HTTP ${res.status}`;
-    logEvent(res.ok ? 'OK' : 'ERREUR', res.ok ? 'ok' : 'err', [statusLine, bodyText || '(réponse vide)']);
+
+    if(res.ok && parsed && typeof parsed === 'object'){
+      allowed = parsed.allowed === true;
+      const doorName = parsed.door?.name ? parsed.door.name : `Porte #${doorId}`;
+      const userName = parsed.user ? `${parsed.user.first_name} ${parsed.user.last_name}` : badge.label;
+      displayLine2 = allowed ? `${userName} · ${doorName}` : (parsed.reason || 'Refusé');
+      logEvent(res.ok ? 'OK' : 'ERREUR', res.ok ? 'ok' : 'err', [
+        statusLine,
+        `allowed=${parsed.allowed} · reason=${parsed.reason ?? '—'}`,
+        `porte: ${doorName}`,
+        `utilisateur: ${parsed.user ? userName : '—'}`
+      ]);
+    } else {
+      allowed = false;
+      displayLine2 = `Erreur · ${statusLine}`;
+      logEvent('ERREUR', 'err', [statusLine, bodyText || '(réponse vide)']);
+    }
   }catch(err){
-    granted = false;
+    allowed = false;
     statusLine = 'Échec réseau';
+    displayLine2 = badge.label;
     logEvent('ERREUR', 'err', [statusLine, err.message, "→ vérifie l'URL et la config CORS du serveur"]);
   }
 
-  if(granted){
+  if(allowed){
     led.setAttribute('fill', '#3FCF6E');
-    setLcd('#163d22', 'ACCES AUTORISE', `${badge.label} · ${statusLine}`, '#6df29b', '#4fae7e');
+    setLcd('#163d22', 'ACCES AUTORISE', displayLine2, '#6df29b', '#4fae7e');
   } else {
-    led.setAttribute('fill', '#FF5C5C');
-    setLcd('#3d1616', 'ACCES REFUSE', `${badge.label} · ${statusLine}`, '#ff8080', '#c96a6a');
+    led.setAttribute('fill', '#e5484d');
+    setLcd('#3d1616', 'ACCES REFUSE', displayLine2, '#ff8080', '#c96a6a');
   }
 
   setTimeout(()=>{
