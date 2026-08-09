@@ -117,8 +117,11 @@ Deux workflows GitHub Actions vérifient la compilation du backend et du fronten
 
 - Écriture des tests unitaires et d'intégration (backend et frontend)
 - Passage des mots de passe optionnels vers une gestion plus fine des comptes sans accès applicatif
-- Historique paginé pour les journaux d'activité
 - Notifications en temps réel (WebSocket) plutôt que par polling
+- Journal d'actions (audit log) des opérations effectuées sur les badges, zones, users pour une traçabilité renforcée
+- Badges éphémères / temporaires pour les visiteurs, avec une durée de validité courte et un accès limité
+- Page de gestion des permissions par groupe (gérée par le responsable sécurité) : définir des groupes d'utilisateurs avec un accès par défaut à certaines zones et un refus par défaut aux autres
+- Thème clair ou personnalisable, en plus du thème sombre actuel
 
 ## Auteur
 
