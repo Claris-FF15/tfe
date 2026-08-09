@@ -1,66 +1,125 @@
-# RFID / NFC Access Control System
+# BadgeApp
 
-A complete RFID/NFC access control system using ESP32, FastAPI, PostgreSQL, Docker, and try to do a full CI/CD DevOps pipeline
+Système de gestion des accès et badges pour la sécurité d'entreprise — TFE. Version 1 de  l'application.
 
-This project is designed to be scalable, secure, and production-ready, supporting multiple doors, time-based access rules, and automatic deployment.
+BadgeApp permet de gérer les utilisateurs, les badges RFID, les zones/portes d'un bâtiment, et de tracer en temps réel les tentatives d'accès (autorisées ou refusées). Le système détecte automatiquement les comportements suspects (accès refusés répétés) et désactive le compte concerné.
 
-## Features
+## Fonctionnalités
 
-* ESP32 + RFID/NFC (MFRC522 / PN532) for the Hardware
-* Wi-Fi communication (REST API)
-* Python + FASTAPI for the Backend
-* PostgreSQL for the Database
-* Docker & Docker Compose
-* API Key authentication (ESP32 → API)
-* Multi-door access control
-* Time-based & day-based access rules
-* Access logging
-* Automated tests
-* Linting & formatting (Ruff + Black)
-* Security scanning (Trivy)
-* Full CI/CD with GitHub Actions (Try)
-* Automatic deployment to VPS
+- **Authentification** par JWT, avec rôles `admin`, `responsable_securite` et `user`
+- **Gestion des utilisateurs** : création, modification, activation/désactivation, changement de rôle (réservé au responsable sécurité)
+- **Gestion des badges** : création, assignation/réassignation à un utilisateur, activation/désactivation, historique des activités
+- **Zones et portes** : création de zones, ajout de portes, gestion des permissions d'accès par utilisateur
+- **Zone Serveur restreinte** : seuls les rôles `admin` et `responsable_securite` peuvent obtenir un accès à cette zone
+- **Journal d'activité** : historique complet des accès (autorisés/refusés), page dédiée aux incidents (accès refusés uniquement)
+- **Sécurité automatique** : désactivation automatique d'un utilisateur après 3 accès refusés en moins de 10 minutes, avec notification affichée sur toute l'application
+- **Profil utilisateur** : modification du nom et du mot de passe
 
-## Architecture Overview
-```
-bash 
+## Stack technique
 
-ESP32 (RFID Reader)
-   |
-   |  HTTP POST (JSON + API KEY)
-   v
-FastAPI Backend (Docker)
-   |
-   v
-PostgreSQL Database
-```
+**Backend**
+- FastAPI (Python 3.11)
+- PostgreSQL + SQLAlchemy
+- JWT (python-jose) pour l'authentification
+- Passlib / bcrypt pour le hachage des mots de passe
 
-## Project Structure
-```
-bash
+**Frontend**
+- Angular 21 (standalone components)
+- ag-Grid pour les tableaux de données
+- SCSS/SASS
 
-badge-access/
-│
-├── .github/workflows/
-│   └── ci-cd.yml         
-│
-├── docker/
-│   └── Dockerfile
-│
-├── docker-compose.yml
-├── requirements.txt
-├── README.md
-│
-└── app/
-    ├── main.py           
-    ├── database.py        
-    ├── models.py          
-    ├── schemas.py         
-    ├── security.py        
-    ├── crud.py            
-    ├── routers/
-    │   └── access.py      
-    └── tests/
-        └── test_access.py
+**Infrastructure**
+- Docker / Docker Compose
+- pgAdmin pour l'administration de la base de données
+
+## Prérequis
+
+- Docker et Docker Compose
+- Node.js (pour le développement frontend hors conteneur, si besoin)
+
+## Installation
+
+1. Cloner le dépôt
+
+```bash
+git clone <url-du-repo>
+cd BadgeApp
 ```
 
+2. Configurer les variables d'environnement du backend (fichier `.env` dans `app/`)
+
+```
+JWT_SECRET_KEY=<votre_clé_secrète>
+DATABASE_URL=postgresql+psycopg2://postgres:@db:5432/badge_app
+```
+
+3. Lancer l'application avec Docker Compose
+
+```bash
+cd tools
+docker compose up --build
+```
+
+## Accès
+
+| Service | URL |
+|---|---|
+| Frontend (Angular) | http://localhost:4200 |
+| Backend (API FastAPI) | http://localhost:8000 |
+| Documentation API (Swagger) | http://localhost:8000/docs |
+| pgAdmin | http://localhost:8080 |
+| PostgreSQL | localhost:5432 |
+
+## Structure du projet
+
+```
+BadgeApp/
+├── app/                    # Backend FastAPI
+│   ├── main.py
+│   ├── models/              # Modèles SQLAlchemy
+│   ├── schemas/              # Schémas Pydantic
+│   ├── repositories/          # Accès aux données
+│   ├── services/              # Logique métier
+│   ├── routers/               # Routes API
+│   └── dependencies/           # Dépendances (auth, permissions)
+├── web/                    # Frontend Angular
+│   └── src/app/
+│       ├── login/
+│       ├── profile/
+│       ├── users/
+│       ├── badges/
+│       ├── zones/
+│       ├── activities/
+│       └── services/
+└── tools/                  # Outils d'infrastructure
+    └── docker-compose.yml
+```
+
+## Rôles et permissions
+
+| Action | user | admin | responsable_securite |
+|---|:---:|:---:|:---:|
+| Se connecter à l'application | ❌ | ✅ | ✅ |
+| Consulter les utilisateurs, badges, zones | ❌ | ✅ | ✅ |
+| Créer un utilisateur avec le rôle `user` | ❌ | ✅ | ✅ |
+| Créer un utilisateur `admin` / `responsable_securite` | ❌ | ❌ | ✅ |
+| Modifier son propre profil | ❌ | ✅ | ✅ |
+| Modifier un autre utilisateur `user` | ❌ | ✅ | ✅ |
+| Modifier un autre `admin` | ❌ | ❌ | ✅ |
+| Changer le rôle d'un utilisateur | ❌ | ❌ | ✅ |
+| Attribuer un accès à la zone Serveur | ❌ | ✅ (soi-même) | ✅ |
+
+## CI/CD
+
+Deux workflows GitHub Actions vérifient la compilation du backend et du frontend à chaque push/PR touchant leurs dossiers respectifs (`app/` et `web/`).
+
+## Roadmap / améliorations possibles
+
+- Écriture des tests unitaires et d'intégration (backend et frontend)
+- Passage des mots de passe optionnels vers une gestion plus fine des comptes sans accès applicatif
+- Historique paginé pour les journaux d'activité
+- Notifications en temps réel (WebSocket) plutôt que par polling
+
+## Auteur
+
+Projet réalisé dans le cadre d'un Travail de Fin d'Études (TFE).
