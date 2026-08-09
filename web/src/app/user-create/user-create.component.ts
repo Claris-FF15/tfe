@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
 
@@ -17,6 +17,10 @@ export class UserCreateComponent implements OnInit {
   errorMessage = '';
   isSecurityOfficer = false;
 
+  showConfirmModal = false;
+  confirmPasswordControl: FormControl<string | null>;
+  confirmError = '';
+
   roles = [
     { id: 2, name: 'user' },
     { id: 1, name: 'admin' },
@@ -31,17 +35,20 @@ export class UserCreateComponent implements OnInit {
     private authService: AuthService,
     private router: Router
   ) {
+    this.confirmPasswordControl = this.fb.control('', Validators.required);
+
     this.createForm = this.fb.group({
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: [''],
-      role_id: [2, Validators.required] // 2 = user par défaut
+      role_id: this.fb.control<number>(2, Validators.required)
     });
 
     this.createForm.get('role_id')?.valueChanges.subscribe(roleId => {
+      const numericRoleId = Number(roleId);
       const passwordControl = this.createForm.get('password');
-      if (this.needsPassword(roleId)) {
+      if (this.needsPassword(numericRoleId)) {
         passwordControl?.setValidators([Validators.required, Validators.minLength(6)]);
       } else {
         passwordControl?.clearValidators();
@@ -61,7 +68,7 @@ export class UserCreateComponent implements OnInit {
     if (roleId == null) {
       return false;
     }
-    const role = this.roles.find(r => r.id === roleId);
+    const role = this.roles.find(r => r.id === Number(roleId));
     return role?.name !== 'user';
   }
 
@@ -69,23 +76,55 @@ export class UserCreateComponent implements OnInit {
     return this.needsPassword(this.createForm.value.role_id);
   }
 
+  get isTargetingSecurityRole(): boolean {
+    return Number(this.createForm.value.role_id) === 3;
+  }
+
   onSubmit(): void {
     if (this.createForm.invalid) {
       return;
     }
 
+    if (this.isTargetingSecurityRole) {
+      this.confirmPasswordControl.reset();
+      this.confirmError = '';
+      this.showConfirmModal = true;
+      return;
+    }
+
+    this.submitUser();
+  }
+
+  onConfirmPassword(): void {
+    if (this.confirmPasswordControl.invalid) {
+      return;
+    }
+    this.submitUser(this.confirmPasswordControl.value!);
+  }
+
+  cancelConfirm(): void {
+    this.showConfirmModal = false;
+  }
+
+  private submitUser(confirmPassword?: string): void {
     this.userService.createUser({
       first_name: this.createForm.value.first_name!,
       last_name: this.createForm.value.last_name!,
       email: this.createForm.value.email!,
       password: this.createForm.value.password || '',
-      role_id: this.createForm.value.role_id!
+      role_id: Number(this.createForm.value.role_id),
+      confirm_password: confirmPassword
     }).subscribe({
       next: () => {
         this.router.navigate(['/users']);
       },
       error: (err) => {
-        this.errorMessage = err.error?.detail ?? 'Erreur lors de la création';
+        const message = err.error?.detail ?? 'Erreur lors de la création';
+        if (this.showConfirmModal) {
+          this.confirmError = message;
+        } else {
+          this.errorMessage = message;
+        }
       }
     });
   }

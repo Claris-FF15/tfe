@@ -19,7 +19,7 @@
       <ng-container *ngIf="isSecurityOfficer">
         <label>Rôle</label>
         <select formControlName="role_id">
-          <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
+          <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.name }}</option>
         </select>
       </ng-container>
 
@@ -40,5 +40,29 @@
 
     </form>
 
+  </div>
+
+  <!-- Modale de confirmation pour la création d'un responsable sécurité -->
+  <div class="modal-overlay" *ngIf="showConfirmModal">
+    <div class="modal-card">
+      <h3>Confirmation requise</h3>
+      <p>Vous êtes sur le point de créer un compte <strong>responsable sécurité</strong>. Entrez votre mot de passe pour confirmer.</p>
+
+      <input
+        type="password"
+        [formControl]="confirmPasswordControl"
+        placeholder="Votre mot de passe"
+        autocomplete="current-password"
+      />
+
+      <div class="error" *ngIf="confirmError">{{ confirmError }}</div>
+
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn" (click)="cancelConfirm()">Annuler</button>
+        <button type="button" class="submit-btn" [disabled]="confirmPasswordControl.invalid" (click)="onConfirmPassword()">
+          Confirmer
+        </button>
+      </div>
+    </div>
   </div>
 </div>

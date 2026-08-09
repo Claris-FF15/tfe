@@ -18,6 +18,7 @@ export interface UserCreatePayload {
   email: string;
   password: string;
   role_id: number;
+  confirm_password?: string;
 }
 
 export interface Zone {

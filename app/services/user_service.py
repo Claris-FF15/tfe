@@ -14,16 +14,23 @@ class UserService:
         if UserRepository.find_by_email(db, data.email):
             raise HTTPException(409, "Un utilisateur avec cet email existe déjà")
 
-        current_role = current_user.role.name.lower() if current_user.role else None
+        from models.role import Role
+        target_role = db.query(Role).filter(Role.id == data.role_id).first()
+        if target_role is None:
+            raise HTTPException(400, "Rôle invalide")
 
-        if current_role != "responsable_securite":
-            from models.role import Role
-            role = db.query(Role).filter(Role.id == data.role_id).first()
-            if role is None or role.name.lower() != "user":
-                raise HTTPException(
-                    403,
-                    "Seul un responsable sécurité peut créer un compte admin ou responsable sécurité",
-                )
+        current_role = current_user.role.name.lower() if current_user.role else None
+        target_role_name = target_role.name.lower()
+
+        if current_role != "responsable_securite" and target_role_name != "user":
+            raise HTTPException(
+                403,
+                "Seul un responsable sécurité peut créer un compte admin ou responsable sécurité",
+            )
+
+        if target_role_name == "responsable_securite":
+            if not data.confirm_password or not verify_password(data.confirm_password, current_user.password):
+                raise HTTPException(403, "Mot de passe de confirmation incorrect")
 
         password = data.password or secrets.token_urlsafe(32)
 
