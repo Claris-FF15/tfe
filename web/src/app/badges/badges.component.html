@@ -5,6 +5,8 @@
     <button class="add-btn" (click)="goToCreate()">+ Ajouter un badge</button>
   </div>
 
+  <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
   <div class="grid-container">
 
     @if (isBrowser) {

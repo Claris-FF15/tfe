@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
@@ -22,6 +22,7 @@ interface BadgeRow extends UserBadge {
 export class BadgesComponent implements OnInit {
 
   isBrowser: boolean;
+  errorMessage = '';
 
   theme = themeQuartz.withParams({
     backgroundColor: '#11161c',
@@ -180,6 +181,7 @@ export class BadgesComponent implements OnInit {
     private badgeService: BadgeService,
     private userService: UserService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -208,9 +210,14 @@ export class BadgesComponent implements OnInit {
   ngOnInit(): void {}
 
   toggleStatus(badge: UserBadge): void {
+    this.errorMessage = '';
+
     this.badgeService.updateBadge(badge.id, { active: !badge.active }).subscribe({
       next: () => this.loadBadges(),
-      error: (err) => console.log('Erreur mise à jour statut:', err)
+      error: (err) => {
+        this.errorMessage = err.error?.detail ?? 'Erreur lors de la mise à jour du statut';
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -242,6 +249,7 @@ export class BadgesComponent implements OnInit {
 
         this.rowData = mapped;
         this.gridApi.setGridOption('rowData', mapped);
+        this.cdr.detectChanges();
       },
       error: (err) => console.log('ERREUR:', err)
     });

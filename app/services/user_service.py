@@ -5,6 +5,7 @@ from models.user import User
 from repositories.user_repository import UserRepository
 from schemas.user import UserCreate, UserUpdateName, UserUpdateRole, LoginRequest
 from services.security import hash_password, verify_password, create_access_token
+from services.badge_service import BadgeService
 
 
 class UserService:
@@ -104,8 +105,15 @@ class UserService:
             raise HTTPException(403, "Vous n'avez pas les droits pour modifier cet utilisateur")
 
         user.active = active
-        return UserRepository.save(db, user)
+        updated_user = UserRepository.save(db, user)
 
+        if not active:
+            BadgeService.deactivate_badge_for_user(db, user_id)
+        else:
+            BadgeService.reactivate_badge_for_user(db, user_id)
+
+        return updated_user
+    
     @staticmethod
     def update_role(
         db: Session,
