@@ -1,6 +1,18 @@
 <div class="layout">
+
   <app-navbar *ngIf="showNavbar"></app-navbar>
+
   <main class="content" [class.full-width]="!showNavbar">
+
+    <div class="alerts-banner" *ngIf="showNavbar && alerts.length > 0">
+      <div class="alert-item" *ngFor="let alert of alerts">
+        <span class="alert-icon">&#9888;</span>
+        <span class="alert-message">{{ alert.message }}</span>
+        <button type="button" class="alert-dismiss" (click)="dismissAlert(alert.id)">&times;</button>
+      </div>
+    </div>
+
     <router-outlet></router-outlet>
   </main>
+
 </div>

@@ -7,6 +7,7 @@ from routers.door_router import router as door_router
 from routers.auth_router import router as auth_router
 from routers.access_log_router import router as access_log_router
 from routers.zone_router import router as zone_router
+from routers.security_alert_router import router as security_alert_router
 
 from db.database import Base, engine
 
@@ -17,6 +18,7 @@ from models.door import Door
 from models.zone import Zone
 from models.access_permission import AccessPermission
 from models.access_log import AccessLog
+from models.security_alert import SecurityAlert
 
 
 app = FastAPI()
@@ -42,3 +44,4 @@ app.include_router(door_router)
 app.include_router(auth_router)
 app.include_router(access_log_router)
 app.include_router(zone_router)
+app.include_router(security_alert_router)

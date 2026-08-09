@@ -2,6 +2,11 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
+class AccessAttempt(BaseModel):
+    badge_uid: str
+    door_id: int
+
+
 class AccessLogUserInfo(BaseModel):
     id: int
     first_name: str

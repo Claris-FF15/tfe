@@ -145,3 +145,15 @@ class UserService:
             raise HTTPException(403, "Ce rôle n'a pas accès à l'application")
 
         return create_access_token({"sub": str(user.id)})
+
+    @staticmethod
+    def force_deactivate(db: Session, user_id: int) -> User | None:
+        user = UserRepository.find_by_id(db, user_id)
+        if not user:
+            return None
+        if not user.active:
+            return user
+        user.active = False
+        updated = UserRepository.save(db, user)
+        BadgeService.deactivate_badge_for_user(db, user_id)
+        return updated
