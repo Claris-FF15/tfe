@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent, RowClickedEvent, themeQuartz, ICellRendererParams } from 'ag-grid-community';
 import { UserService, UserRow } from '../services/user.service';
+import { CheckboxSetFilterComponent } from '../checkbox-set-filter/checkbox-set-filter.component';
 
 @Component({
   selector: 'app-users',
@@ -40,13 +41,23 @@ export class UsersComponent implements OnInit {
   private gridApi!: GridApi;
   private avatarPalette = ['#3fd0c9', '#3a6ea5', '#f2a73b', '#9b7fd4'];
 
+  pagination = true;
+  paginationPageSize = 10;
+  paginationPageSizeSelector = [10, 20, 50];
+
+  defaultColDef: ColDef = {
+    filter: CheckboxSetFilterComponent,
+    sortable: true,
+    resizable: true,
+  };
+
   columnDefs: ColDef[] = [
     {
       field: 'id',
       headerName: 'ID',
       width: 100,
       minWidth: 100,
-      sort: 'asc',        // <- tri visuel par défaut sur cette colonne
+      sort: 'asc',
       sortIndex: 0,
       cellStyle: {
         fontFamily: "'IBM Plex Mono', monospace",
@@ -219,7 +230,7 @@ export class UsersComponent implements OnInit {
             ...u,
             role_name: u.role.name
           }))
-          .sort((a, b) => a.id - b.id);   // <- tri croissant par ID, garanti côté données
+          .sort((a, b) => a.id - b.id);
 
         this.rowData = mapped;
         this.gridApi.setGridOption('rowData', mapped);

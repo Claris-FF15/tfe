@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent, RowClickedEvent, themeQuartz } from 'ag-grid-community';
 import { AccessLogService } from '../services/access-log.service';
+import { CheckboxSetFilterComponent } from '../checkbox-set-filter/checkbox-set-filter.component';
 
 interface ActivityRow {
   id: number;
@@ -51,12 +52,23 @@ export class ActivityLogComponent implements OnInit {
   private gridApi!: GridApi;
   private avatarPalette = ['#3fd0c9', '#3a6ea5', '#f2a73b', '#9b7fd4'];
 
+  pagination = true;
+  paginationPageSize = 10;
+  paginationPageSizeSelector = [10, 20, 50];
+
+defaultColDef: ColDef = {
+  filter: CheckboxSetFilterComponent,
+  sortable: true,
+  resizable: true,
+};
+
   columnDefs: ColDef[] = [
     {
       field: 'id',
       headerName: 'ID',
       width: 100,
       minWidth: 100,
+      filter: 'agNumberColumnFilter',
       cellStyle: {
         fontFamily: "'IBM Plex Mono', monospace",
         color: '#6e7c8c',
@@ -92,6 +104,9 @@ export class ActivityLogComponent implements OnInit {
       headerName: 'Action',
       flex: 1.6,
       minWidth: 200,
+      filterParams: {
+        valueFormatter: (p: any) => p.value,
+      },
       cellRenderer: (p: any) => {
         const ok = p.data.allowed === true;
         const bg = ok ? 'rgba(63,208,201,0.12)' : 'rgba(229,72,77,0.14)';

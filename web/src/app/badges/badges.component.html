@@ -14,6 +14,10 @@
         [theme]="theme"
         [rowData]="rowData"
         [columnDefs]="columnDefs"
+        [defaultColDef]="defaultColDef"
+        [pagination]="pagination"
+        [paginationPageSize]="paginationPageSize"
+        [paginationPageSizeSelector]="paginationPageSizeSelector"
         (gridReady)="onGridReady($event)"
         (rowClicked)="onRowClicked($event)"
         class="ag-grid">

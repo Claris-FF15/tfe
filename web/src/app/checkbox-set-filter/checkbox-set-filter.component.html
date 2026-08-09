@@ -1,0 +1,21 @@
+<div class="set-filter">
+  <input
+    type="text"
+    class="search-input"
+    placeholder="Rechercher une valeur..."
+    [(ngModel)]="search"
+  />
+
+  <div class="filter-actions">
+    <button type="button" (click)="selectAll()">Tout sélectionner</button>
+    <button type="button" (click)="clearAll()">Tout désélectionner</button>
+  </div>
+
+  <div class="values-list">
+    <label class="value-row" *ngFor="let v of filteredValues">
+      <input type="checkbox" [checked]="isChecked(v)" (change)="toggle(v)" />
+      <span>{{ v }}</span>
+    </label>
+    <p class="empty-note" *ngIf="filteredValues.length === 0">Aucun résultat.</p>
+  </div>
+</div>

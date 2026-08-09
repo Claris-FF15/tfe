@@ -7,6 +7,7 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent, RowClickedEvent, themeQuartz, ICellRendererParams } from 'ag-grid-community';
 import { BadgeService, UserBadge } from '../services/badge.service';
 import { UserService, UserRow } from '../services/user.service';
+import { CheckboxSetFilterComponent } from '../checkbox-set-filter/checkbox-set-filter.component';
 
 interface BadgeRow extends UserBadge {
   user_name: string;
@@ -46,6 +47,16 @@ export class BadgesComponent implements OnInit {
   rowData: BadgeRow[] = [];
   private gridApi!: GridApi;
   private avatarPalette = ['#3fd0c9', '#3a6ea5', '#f2a73b', '#9b7fd4'];
+
+  pagination = true;
+  paginationPageSize = 10;
+  paginationPageSizeSelector = [10, 20, 50];
+
+  defaultColDef: ColDef = {
+    filter: CheckboxSetFilterComponent,
+    sortable: true,
+    resizable: true,
+  };
 
   columnDefs: ColDef[] = [
     {

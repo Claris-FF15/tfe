@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent, RowClickedEvent, themeQuartz } from 'ag-grid-community';
 import { AccessLogService } from '../services/access-log.service';
+import { CheckboxSetFilterComponent } from '../checkbox-set-filter/checkbox-set-filter.component';
 
 interface IncidentRow {
   id: number;
@@ -48,6 +49,16 @@ export class IncidentsComponent implements OnInit {
   rowData: IncidentRow[] = [];
   private gridApi!: GridApi;
   private avatarPalette = ['#e5484d', '#c9455a', '#f2716b'];
+
+  pagination = true;
+  paginationPageSize = 10;
+  paginationPageSizeSelector = [10, 20, 50];
+
+  defaultColDef: ColDef = {
+    filter: CheckboxSetFilterComponent,
+    sortable: true,
+    resizable: true,
+  };
 
   columnDefs: ColDef[] = [
     {

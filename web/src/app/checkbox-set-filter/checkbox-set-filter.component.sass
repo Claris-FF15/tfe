@@ -1,0 +1,79 @@
+.set-filter
+  width: 240px
+  background-color: #11161c
+  border: 1px solid #1e2530
+  border-radius: 8px
+  padding: 10px
+  font-family: 'IBM Plex Mono', monospace
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4)
+
+.search-input
+  width: 100%
+  padding: 8px 10px
+  margin-bottom: 8px
+  background-color: #0e1319
+  border: 1px solid #1e2530
+  border-radius: 6px
+  color: #e7edf3
+  font-family: 'IBM Plex Mono', monospace
+  font-size: 0.8rem
+  box-sizing: border-box
+
+  &:focus
+    outline: none
+    border-color: #3fd0c9
+
+.filter-actions
+  display: flex
+  gap: 6px
+  margin-bottom: 8px
+
+  button
+    flex: 1
+    padding: 6px
+    background: transparent
+    color: #3fd0c9
+    border: 1px solid rgba(63, 208, 201, 0.3)
+    border-radius: 6px
+    font-family: 'IBM Plex Mono', monospace
+    font-size: 0.7rem
+    cursor: pointer
+    transition: background-color 0.2s, border-color 0.2s
+
+    &:hover
+      background: rgba(63, 208, 201, 0.12)
+      border-color: #3fd0c9
+
+.values-list
+  max-height: 220px
+  overflow-y: auto
+  display: flex
+  flex-direction: column
+  gap: 2px
+
+.value-row
+  display: flex
+  align-items: center
+  gap: 8px
+  padding: 6px 8px
+  border-radius: 5px
+  cursor: pointer
+  font-size: 0.8rem
+  color: #e7edf3
+  transition: background-color 0.15s
+
+  &:hover
+    background: #141a22
+
+  input[type="checkbox"]
+    accent-color: #3fd0c9
+    width: 14px
+    height: 14px
+    cursor: pointer
+
+.empty-note
+  color: #6e7c8c
+  font-size: 0.8rem
+  font-style: italic
+  padding: 8px
+  margin: 0
