@@ -94,7 +94,7 @@ form
   font-family: 'IBM Plex Mono', monospace
 
 .info-note
-  color: #6e7c8c
+  color: #f2a73b
   font-size: 0.8rem
   font-style: italic
   margin-bottom: 15px
@@ -102,7 +102,6 @@ form
   background: rgba(242, 167, 59, 0.08)
   border: 1px solid rgba(242, 167, 59, 0.25)
   border-radius: 6px
-  color: #f2a73b
 
 .modal-overlay
   position: fixed
@@ -110,7 +109,7 @@ form
   left: 0
   right: 0
   bottom: 0
-  background: rgba(0, 0, 0, 0.5)
+  background: rgba(11, 15, 20, 0.75)
   display: flex
   align-items: center
   justify-content: center
@@ -118,35 +117,46 @@ form
 
 .modal-card
   width: 400px
-  background-color: rgba(255, 255, 255, 0.98)
+  background-color: #11161c
+  border: 1px solid #1e2530
   border-radius: 10px
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3)
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5)
   padding: 30px
-  font-family: 'Segoe UI', Roboto, sans-serif
+  font-family: 'IBM Plex Mono', monospace
 
   h3
-    color: #1f497d
+    color: #ffffff
     margin: 0 0 10px
-    font-size: 1.2rem
+    font-size: 1.1rem
+    font-weight: 700
+    letter-spacing: 0.02em
 
   p
-    color: #555
-    font-size: 0.9rem
-    margin-bottom: 16px
+    color: #6e7c8c
+    font-size: 0.85rem
+    line-height: 1.5
+    margin-bottom: 18px
+
+    strong
+      color: #f2a73b
 
   input
     width: 100%
-    padding: 10px
+    padding: 10px 12px
     margin-bottom: 10px
-    border: 1px solid #c1c1c1
+    background-color: #0e1319
+    border: 1px solid #1e2530
     border-radius: 6px
-    font-size: 1rem
+    color: #e7edf3
+    font-family: 'IBM Plex Mono', monospace
+    font-size: 0.9rem
     box-sizing: border-box
+    transition: border-color 0.2s, box-shadow 0.2s
 
     &:focus
       outline: none
-      border-color: #1f497d
-      box-shadow: 0 0 5px rgba(31, 73, 125, 0.5)
+      border-color: #3fd0c9
+      box-shadow: 0 0 0 3px rgba(63, 208, 201, 0.15)
 
 .modal-actions
   display: flex
@@ -158,12 +168,16 @@ form
     padding: 10px
 
 .cancel-btn
-  background: #eee
-  color: #333
-  border: none
+  background: transparent
+  color: #6e7c8c
+  border: 1px solid #1e2530
   border-radius: 6px
   cursor: pointer
   font-weight: 600
+  font-family: 'IBM Plex Mono', monospace
+  font-size: 0.85rem
+  transition: border-color 0.2s, color 0.2s
 
   &:hover
-    background: #ddd
+    color: #e7edf3
+    border-color: #33373d
